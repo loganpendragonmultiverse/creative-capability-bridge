@@ -1,0 +1,48 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.10", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: { python-version: "${{ matrix.python }}", cache: pip }
+      - uses: actions/setup-node@v7
+        with: { node-version: 24 }
+      - run: python -m pip install -e ".[dev]"
+      - run: ruff format --check .
+      - run: ruff check .
+      - run: mypy src tests
+      - run: pytest
+      - run: npm test
+      - run: npm run check
+      - run: npm run build
+      - run: python -m build
+  native-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: { python-version: "3.12", cache: pip }
+      - run: sudo apt-get update && sudo apt-get install -y blender inkscape
+      - run: python -m pip install -e ".[dev]"
+      - run: CCB_REQUIRE_NATIVE=1 pytest tests/test_native.py --no-cov
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: { python-version: "3.12", cache: pip }
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pip_audit
+

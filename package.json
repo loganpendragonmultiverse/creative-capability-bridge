@@ -1,0 +1,13 @@
+{
+  "name": "creative-capability-bridge-site",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/web-core.test.mjs",
+    "check": "node scripts/check-site.mjs",
+    "build": "node scripts/build-site.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
+

@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and research discussions
+    url: https://github.com/loganpendragonmultiverse/creative-capability-bridge/discussions
+    about: Ask for help or discuss capability semantics before proposing a large change.
+  - name: Private security report
+    url: https://github.com/loganpendragonmultiverse/creative-capability-bridge/security/advisories/new
+    about: Report vulnerabilities privately.
+

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build portable capability plans for Blender and Inkscape without learning a different interaction model for every application.">
+  <title>Creative Capability Bridge</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Creative Capability Bridge home">CCB <span>01</span></a>
+    <nav aria-label="Primary"><a href="#builder">Plan builder</a><a href="#roadmap">Research roadmap</a><a href="https://github.com/loganpendragonmultiverse/creative-capability-bridge">GitHub</a></nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="eyebrow">One intent. Multiple creative tools.</p>
+      <h1>Stop relearning the same operation.</h1>
+      <p class="lede">Creative Capability Bridge defines a small, inspectable protocol for text and transforms, then translates it through application-specific adapters.</p>
+      <div class="hero-actions"><a class="button primary" href="#builder">Build a plan</a><a class="button" href="https://github.com/loganpendragonmultiverse/creative-capability-bridge#three-minute-start">Install the CLI</a></div>
+      <ul class="proof" aria-label="Project boundaries"><li>Local execution</li><li>Source-preserving defaults</li><li>No runtime AI</li></ul>
+    </section>
+
+    <section class="explainer" aria-labelledby="how-title">
+      <div><p class="eyebrow">Protocol, not a skin</p><h2 id="how-title">The shared layer stays small.</h2></div>
+      <ol><li><strong>Describe</strong><span>Build a versioned JSON plan with explicit targets and units.</span></li><li><strong>Validate</strong><span>Reject unsupported fields before an application is launched.</span></li><li><strong>Translate</strong><span>Use a Blender background script or an Inkscape SVG adapter.</span></li><li><strong>Preserve</strong><span>Write a separate output instead of silently changing the original.</span></li></ol>
+    </section>
+
+    <section class="builder" id="builder" aria-labelledby="builder-title">
+      <div class="section-heading"><p class="eyebrow">Reference interface</p><h2 id="builder-title">Build an inspectable plan.</h2><p>This page creates JSON only. Execution remains an explicit local CLI step.</p></div>
+      <form id="plan-form">
+        <div class="form-grid">
+          <label>Application<select id="adapter" name="adapter"><option value="inkscape">Inkscape</option><option value="blender">Blender</option></select></label>
+          <label>Input file <small>optional</small><input name="input" placeholder="source.svg"></label>
+          <label>Output file<input id="output-path" name="output" value="output.svg" required></label>
+          <div class="transport"><small>Adapter transport</small><strong id="transport"></strong></div>
+        </div>
+        <fieldset><legend>Target and text</legend><div class="form-grid compact">
+          <label>Target ID<input name="target" value="title" pattern="[A-Za-z][A-Za-z0-9_-]{0,63}" required></label>
+          <label class="wide">Content<input name="content" value="A common interface" required></label>
+          <label>Font family<input name="fontFamily" value="Liberation Sans"></label>
+          <label>Font size<input name="fontSize" type="number" value="48" min="0.01" step="any"></label>
+          <label>Alignment<select name="alignment"><option>left</option><option>center</option><option>right</option></select></label>
+          <label>Fill<input name="fill" type="color" value="#1d2522"></label>
+        </div><button class="button primary" id="add-text" type="button">Add text creation</button></fieldset>
+        <fieldset><legend>Transform</legend><div class="form-grid compact">
+          <label>X<input name="x" type="number" value="0" step="any"></label><label>Y<input name="y" type="number" value="0" step="any"></label><label data-3d>Z<input name="z" type="number" value="0" step="any"></label>
+          <label>Rotation °<input name="rotation" type="number" value="0" step="any"></label><label>Scale X<input name="scaleX" type="number" value="1" min="0.01" step="any"></label><label>Scale Y<input name="scaleY" type="number" value="1" min="0.01" step="any"></label><label data-3d>Scale Z<input name="scaleZ" type="number" value="1" min="0.01" step="any"></label>
+        </div><button class="button" id="add-transform" type="button">Add transform</button></fieldset>
+      </form>
+      <div class="plan-panel"><div><div class="panel-title"><h3>Operation queue</h3><span id="status" role="status" aria-live="polite"></span></div><ol id="operations" class="operations"></ol></div><div><div class="panel-title"><h3>Plan preview</h3><button id="download" class="button small" type="button">Download JSON</button></div><pre id="plan-output">Add an operation to generate a plan.</pre></div></div>
+    </section>
+
+    <section class="roadmap" id="roadmap" aria-labelledby="roadmap-title"><div><p class="eyebrow">Research, not promises</p><h2 id="roadmap-title">Where the bridge could go next.</h2><p>Future work advances only when application semantics can be specified and tested honestly.</p></div><div class="roadmap-grid"><article><span>02</span><h3>Live adapter sessions</h3><p>Local plug-in bridges for selection, state, undo, and transaction synchronization.</p></article><article><span>03</span><h3>More applications</h3><p>Conformance-researched adapters for GIMP and FreeCAD.</p></article><article><span>04</span><h3>More capabilities</h3><p>Color fills, export profiles, asset browsing, parameter editing, and timelines.</p></article><article><span>05</span><h3>Guarded language planning</h3><p>Optional natural-language proposals that produce visible protocol commands—not arbitrary scripts—and require confirmation.</p></article></div></section>
+  </main>
+  <footer><strong>Creative Capability Bridge</strong><span>MIT licensed · Local-first · Maintained by Logan Pendragon Multiverse</span></footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
+

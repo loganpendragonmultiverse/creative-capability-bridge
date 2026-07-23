@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "adapter": "inkscape",
+  "input": null,
+  "output": "output/inkscape-text.svg",
+  "operations": [
+    {
+      "capability": "text.create",
+      "target": "title",
+      "parameters": {
+        "content": "A common interface",
+        "font_family": "Liberation Sans",
+        "font_size": 48,
+        "alignment": "center",
+        "fill": "#1D2522",
+        "x": 600,
+        "y": 300
+      }
+    },
+    {
+      "capability": "transform.set",
+      "target": "title",
+      "parameters": { "rotation_degrees": -4, "scale_x": 1, "scale_y": 1 }
+    }
+  ]
+}
+

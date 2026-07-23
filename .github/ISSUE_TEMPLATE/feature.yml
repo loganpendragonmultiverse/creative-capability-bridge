@@ -1,0 +1,18 @@
+name: Capability or feature proposal
+description: Propose a researched protocol, adapter, or interface improvement
+title: "[Proposal] "
+labels: ["enhancement", "needs-research"]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: User problem, description: Describe the repeated creative task without assuming a particular application command. }
+    validations: { required: true }
+  - type: textarea
+    id: semantics
+    attributes: { label: Shared semantics, description: Explain what is genuinely common and where applications differ. }
+    validations: { required: true }
+  - type: textarea
+    id: evidence
+    attributes: { label: API and test evidence, description: Link official application APIs and propose deterministic conformance fixtures. }
+    validations: { required: true }
+

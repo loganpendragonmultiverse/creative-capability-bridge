@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "adapter": "blender",
+  "input": null,
+  "output": "output/blender-text.blend",
+  "operations": [
+    {
+      "capability": "text.create",
+      "target": "title",
+      "parameters": {
+        "content": "A common interface",
+        "font_family": "Liberation Sans",
+        "font_size": 1.2,
+        "alignment": "center",
+        "fill": "#E84F2FFF",
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "capability": "transform.set",
+      "target": "title",
+      "parameters": { "rotation_degrees": 8, "scale_x": 1.2, "scale_y": 1.2, "scale_z": 1.2 }
+    }
+  ]
+}
+
