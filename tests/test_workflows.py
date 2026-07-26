@@ -6,11 +6,17 @@ from unittest.mock import patch
 
 import pytest
 
-from creative_capability_bridge.bundles import create_bundle, verify_bundle
+from creative_capability_bridge.bundles import create_bundle, extract_bundle, verify_bundle
 from creative_capability_bridge.explain import explain_plan
 from creative_capability_bridge.inspection import inspect_document
+from creative_capability_bridge.linting import lint_plan
 from creative_capability_bridge.negotiation import compatibility, retarget
-from creative_capability_bridge.receipts import build_receipt, compare_receipts, write_receipt
+from creative_capability_bridge.receipts import (
+    build_receipt,
+    compare_receipts,
+    verify_receipt,
+    write_receipt,
+)
 from creative_capability_bridge.schema import PlanError, load_plan
 
 
@@ -171,3 +177,61 @@ def test_retarget_rejects_unsupported_and_existing_destination(tmp_path: Path) -
     destination.write_text("existing", encoding="utf-8")
     with pytest.raises(PlanError, match="already exists"):
         retarget(source, "blender", destination)
+
+
+def test_bundle_extracts_only_after_verification(tmp_path: Path) -> None:
+    bundle = create_bundle(plan_file(tmp_path), tmp_path / "project.zip")
+    destination = extract_bundle(bundle, tmp_path / "unpacked")
+    assert (destination / "plan.json").is_file()
+    assert (destination / "manifest.json").is_file()
+    with pytest.raises(PlanError, match="already exists"):
+        extract_bundle(bundle, destination)
+
+
+def test_receipt_verification_detects_output_drift(tmp_path: Path) -> None:
+    plan = load_plan(plan_file(tmp_path))
+    plan.output_path.write_text("one", encoding="utf-8")
+    receipt = write_receipt(
+        tmp_path / "receipt.json",
+        build_receipt(plan, started=0, application_version="Inkscape test"),
+    )
+    assert verify_receipt(receipt)["verified"] is True
+    plan.output_path.write_text("changed", encoding="utf-8")
+    report = verify_receipt(receipt)
+    assert report["verified"] is False
+    assert report["files"]["output"]["exists"] is True
+
+
+def test_lint_tracks_created_and_existing_targets(tmp_path: Path) -> None:
+    plan = load_plan(plan_file(tmp_path))
+    assert lint_plan(plan)["valid"] is True
+    svg = tmp_path / "source.svg"
+    svg.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg"><text id="existing">X</text></svg>',
+        encoding="utf-8",
+    )
+    payload = json.loads(plan_file(tmp_path).read_text(encoding="utf-8"))
+    payload["operations"] = [
+        {"capability": "text.update", "target": "existing", "parameters": {"content": "Y"}},
+        {"capability": "transform.set", "target": "missing", "parameters": {"x": 2}},
+    ]
+    source = tmp_path / "lint.json"
+    source.write_text(json.dumps(payload), encoding="utf-8")
+    report = lint_plan(load_plan(source), document=svg)
+    assert report["valid"] is False
+    assert report["errors"][0]["target"] == "missing"
+    assert report["inspected_target_count"] == 1
+
+
+def test_lint_warns_without_document_and_rejects_duplicate_create(tmp_path: Path) -> None:
+    payload = json.loads(plan_file(tmp_path).read_text(encoding="utf-8"))
+    payload["operations"] = [
+        {"capability": "text.update", "target": "existing", "parameters": {"content": "Y"}},
+        {"capability": "text.create", "target": "title", "parameters": {"content": "One"}},
+        {"capability": "text.create", "target": "title", "parameters": {"content": "Two"}},
+    ]
+    source = tmp_path / "lint.json"
+    source.write_text(json.dumps(payload), encoding="utf-8")
+    report = lint_plan(load_plan(source))
+    assert report["warnings"][0]["code"] == "target_not_established"
+    assert report["errors"][0]["code"] == "target_already_exists"

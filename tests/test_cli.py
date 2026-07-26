@@ -92,3 +92,18 @@ def test_bundle_and_receipt_cli(tmp_path: Path, capsys) -> None:  # type: ignore
     assert main(["execute", str(plan), "--receipt", str(receipt)]) == 0
     capsys.readouterr()
     assert json.loads(receipt.read_text())["status"] == "completed"
+    assert main(["verify-receipt", str(receipt)]) == 0
+    assert json.loads(capsys.readouterr().out)["verified"] is True
+    extracted = tmp_path / "extracted"
+    assert main(["bundle", "extract", str(bundle), str(extracted)]) == 0
+    capsys.readouterr()
+    assert (extracted / "plan.json").is_file()
+
+
+def test_lint_cli_returns_one_for_target_errors(tmp_path: Path, capsys) -> None:  # type: ignore[no-untyped-def]
+    plan = write_plan(tmp_path)
+    payload = json.loads(plan.read_text(encoding="utf-8"))
+    payload["operations"].append(payload["operations"][0])
+    plan.write_text(json.dumps(payload), encoding="utf-8")
+    assert main(["lint", str(plan)]) == 1
+    assert json.loads(capsys.readouterr().out)["valid"] is False

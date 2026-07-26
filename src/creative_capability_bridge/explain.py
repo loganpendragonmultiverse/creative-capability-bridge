@@ -1,4 +1,4 @@
-"""Human-readable execution boundary reports."""
+"""Clear execution-boundary reports."""
 
 from __future__ import annotations
 

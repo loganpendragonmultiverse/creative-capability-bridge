@@ -11,12 +11,13 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from .adapters import BlenderAdapter, InkscapeAdapter
-from .bundles import create_bundle, verify_bundle
+from .bundles import create_bundle, extract_bundle, verify_bundle
 from .capabilities import all_manifests, manifest
 from .explain import explain_plan
 from .inspection import inspect_document
+from .linting import lint_plan
 from .negotiation import compatibility, retarget
-from .receipts import build_receipt, compare_receipts, write_receipt
+from .receipts import build_receipt, compare_receipts, verify_receipt, write_receipt
 from .schema import ADAPTERS, PlanError, load_plan
 
 
@@ -31,6 +32,12 @@ def parser() -> argparse.ArgumentParser:
     explain = subcommands.add_parser("explain", help="Explain a plan's file and target effects.")
     explain.add_argument("plan", type=Path)
     explain.add_argument("--replace", action="store_true")
+    lint = subcommands.add_parser("lint", help="Check target flow beyond schema validation.")
+    lint.add_argument("plan", type=Path)
+    lint.add_argument(
+        "--document", type=Path, help="Inspect a document to confirm existing targets."
+    )
+    lint.add_argument("--executable", help="Blender executable path for .blend inspection.")
     inspect = subcommands.add_parser("inspect", help="Read document targets without modifying it.")
     inspect.add_argument("document", type=Path)
     inspect.add_argument("--executable", help="Blender executable path for .blend inspection.")
@@ -49,6 +56,10 @@ def parser() -> argparse.ArgumentParser:
     compare = subcommands.add_parser("compare-receipts", help="Compare two execution receipts.")
     compare.add_argument("left", type=Path)
     compare.add_argument("right", type=Path)
+    receipt_verify = subcommands.add_parser(
+        "verify-receipt", help="Re-hash receipt files and report drift or missing files."
+    )
+    receipt_verify.add_argument("receipt", type=Path)
     bundle = subcommands.add_parser("bundle", help="Create or verify portable project bundles.")
     bundle_commands = bundle.add_subparsers(dest="bundle_command", required=True)
     bundle_create = bundle_commands.add_parser(
@@ -63,6 +74,11 @@ def parser() -> argparse.ArgumentParser:
         "verify", help="Verify bundle paths and file hashes."
     )
     bundle_verify.add_argument("bundle", type=Path)
+    bundle_extract = bundle_commands.add_parser(
+        "extract", help="Verify and extract a bundle into a new directory."
+    )
+    bundle_extract.add_argument("bundle", type=Path)
+    bundle_extract.add_argument("destination", type=Path)
     preview = subcommands.add_parser(
         "preview", help="Show the execution boundary without changing files."
     )
@@ -114,6 +130,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "compare-receipts":
             print(json.dumps(compare_receipts(args.left, args.right), indent=2))
             return 0
+        if args.command == "verify-receipt":
+            report = verify_receipt(args.receipt)
+            print(json.dumps(report, indent=2))
+            return 0 if report["verified"] else 1
         if args.command == "bundle":
             if args.bundle_command == "create":
                 print(
@@ -125,11 +145,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                         fallback_fonts=args.fallback_font,
                     )
                 )
-            else:
+            elif args.bundle_command == "verify":
                 report = verify_bundle(args.bundle)
                 print(json.dumps(report, indent=2))
                 if not report["valid"]:
                     return 2
+            else:
+                print(extract_bundle(args.bundle, args.destination))
             return 0
         plan = load_plan(args.plan)
         if args.command == "validate":
@@ -140,6 +162,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "explain":
             print(json.dumps(explain_plan(plan, replace=args.replace), indent=2))
             return 0
+        if args.command == "lint":
+            report = lint_plan(plan, document=args.document, executable=args.executable)
+            print(json.dumps(report, indent=2))
+            return 0 if report["valid"] else 1
         adapter = _adapter(plan.adapter, args.executable)
         if args.command == "preview":
             print(json.dumps(adapter.preview(plan), indent=2))

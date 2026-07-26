@@ -23,3 +23,5 @@ This separation is intentional: negotiation can discuss portability, while execu
 ## Evidence formats
 
 Bundle manifests and execution receipts are independently versioned at `1`. They do not change protocol plan version 1. A bundle uses archive-relative paths and SHA-256 file hashes. A receipt records a completed execution, its output hash, operation results, versions, warnings, and elapsed time.
+
+Semantic linting is also outside the wire protocol. Schema validation answers whether a plan is structurally executable; `ccb lint` additionally checks target flow. Without a document, references not established earlier in the plan are warnings. With `--document`, read-only inspection turns missing target references into errors.

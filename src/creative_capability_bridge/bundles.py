@@ -94,6 +94,33 @@ def verify_bundle(path: Path) -> dict[str, Any]:
     return {"bundle": str(source), "valid": valid, "files": checked, "manifest": manifest}
 
 
+def extract_bundle(path: Path, destination: Path) -> Path:
+    report = verify_bundle(path)
+    if not report["valid"]:
+        raise PlanError("Bundle failed verification and was not extracted.")
+    target = destination.resolve()
+    if target.exists():
+        raise PlanError(f"Extraction destination already exists: {target}")
+    target.mkdir(parents=True)
+    try:
+        with zipfile.ZipFile(path.resolve()) as archive:
+            names = ["manifest.json", *(item["path"] for item in report["manifest"]["files"])]
+            for name in names:
+                output = target / Path(name.replace("\\", "/"))
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_bytes(archive.read(name))
+    except (OSError, KeyError, zipfile.BadZipFile):
+        # The destination was newly created for this operation and contains only extraction output.
+        for item in sorted(target.rglob("*"), key=lambda value: len(value.parts), reverse=True):
+            if item.is_file():
+                item.unlink()
+            else:
+                item.rmdir()
+        target.rmdir()
+        raise
+    return target
+
+
 def _unsafe_name(name: str) -> bool:
     candidate = Path(name.replace("\\", "/"))
     return candidate.is_absolute() or ".." in candidate.parts or ":" in name
