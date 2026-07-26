@@ -138,9 +138,11 @@ def test_inspection_rejects_missing_unknown_and_unavailable_blender(tmp_path: Pa
         inspect_document(unknown)
     blend = tmp_path / "file.blend"
     blend.write_bytes(b"BLENDER")
-    with patch("creative_capability_bridge.inspection.shutil.which", return_value=None):
-        with pytest.raises(PlanError, match="not found"):
-            inspect_document(blend)
+    with (
+        patch("creative_capability_bridge.inspection.shutil.which", return_value=None),
+        pytest.raises(PlanError, match="not found"),
+    ):
+        inspect_document(blend)
 
 
 def test_bundle_and_receipt_error_paths(tmp_path: Path) -> None:

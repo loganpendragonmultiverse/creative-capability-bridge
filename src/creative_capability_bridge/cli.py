@@ -7,12 +7,12 @@ import json
 import shutil
 import sys
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from .adapters import BlenderAdapter, InkscapeAdapter
-from .capabilities import all_manifests, manifest
 from .bundles import create_bundle, verify_bundle
+from .capabilities import all_manifests, manifest
 from .explain import explain_plan
 from .inspection import inspect_document
 from .negotiation import compatibility, retarget

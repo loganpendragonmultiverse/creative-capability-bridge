@@ -5,8 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import zipfile
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from .schema import PlanError, load_plan
 
