@@ -6,7 +6,7 @@
 
 Creative Capability Bridge (CCB) is a versioned protocol, adapter toolkit, and reference plan builder for expressing common creative operations once and translating them for different applications.
 
-Version 1.1 supports text creation, text updates, and explicit transforms through Blender and Inkscape adapters, plus read-only inspection, human-readable explanations, portable bundles, execution receipts, and adapter compatibility negotiation. It is deliberately a focused capability layer—not a replacement interface for every creative application.
+Version 1.2 supports text creation, text updates, and explicit transforms through Blender and Inkscape adapters, plus read-only inspection, clear execution summaries, portable bundles, execution receipts, and adapter compatibility negotiation. It is deliberately a focused capability layer—not a replacement interface for every creative application.
 
 **[Open the plan builder](https://loganpendragonmultiverse.github.io/creative-capability-bridge/)**
 
@@ -44,23 +44,29 @@ Use `ccb capabilities --json` for the machine-readable manifests.
 
 ## Portable workflow
 
-CCB 1.1 adds five reviewable stages around execution:
+CCB adds reviewable stages around execution:
 
 ```bash
 ccb inspect source.svg
 ccb explain plan.json
+ccb lint plan.json --document source.svg
 ccb compatibility examples/portable-text.json
 ccb retarget examples/portable-text.json --adapter inkscape --output inkscape-plan.json
 ccb bundle create inkscape-plan.json project.ccb.zip --asset LICENSE.txt --fallback-font sans-serif
 ccb bundle verify project.ccb.zip
+ccb bundle extract project.ccb.zip unpacked-project
 ccb execute inkscape-plan.json --receipt receipt.json
+ccb verify-receipt receipt.json
 ccb compare-receipts receipt-a.json receipt-b.json
 ```
 
 - `inspect` reads `.svg` metadata directly and uses Blender's background mode for `.blend`; it does not save the source.
 - `explain` lists files read/created, replacement state, created/modified targets, requirements, and known approximations.
+- `lint` checks operation order and target lifecycles; with `--document`, it confirms referenced targets through read-only inspection.
 - Bundles contain `plan.json`, optional `assets/`, and a manifest with SHA-256 hashes, license notes, fallback fonts, and archive-relative paths.
+- `bundle extract` verifies hashes and paths first, then writes only into a new destination directory.
 - Receipts record tool/application versions, hashes, operations, warnings, platform, and elapsed time after a successful execution. They contain paths and may expose local directory names, so review them before sharing.
+- `verify-receipt` re-hashes the recorded input and output to detect missing or changed files.
 - `adapter: "auto"` is valid for compatibility and retargeting only. Execution still requires a concrete, validated adapter plan.
 
 ## Three-minute start
@@ -183,7 +189,7 @@ CCB runs locally on Windows, macOS, and Linux wherever Python and the selected a
 
 Contributions are welcome through reviewed pull requests. Start with [CONTRIBUTING.md](CONTRIBUTING.md), the [development guide](DEVELOPMENT.md), and the adapter contract. Compatibility reports should include the operating system, application version, plan, expected semantic result, and actual result using synthetic fixtures where possible.
 
-Version 1.1.0 is feature-complete for its documented scope. Maintenance prioritizes correctness, safe file handling, compatibility evidence, and a small comprehensible protocol over rapidly adding application-specific commands.
+Version 1.2.0 is feature-complete for its documented scope. Maintenance prioritizes correctness, safe file handling, compatibility evidence, and a small comprehensible protocol over rapidly adding application-specific commands.
 
 ## License
 

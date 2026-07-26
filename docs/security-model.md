@@ -12,7 +12,9 @@ CCB treats plans and creative documents as untrusted input.
 - The browser builder has no network, storage, or application-execution capability.
 - Inspection is read-only; Blender inspection runs a fixed script and never invokes a save operation.
 - Bundle verification rejects absolute paths, parent traversal, drive-qualified paths, duplicate entries, and hash or length mismatches.
+- Bundle extraction runs verification first, refuses an existing destination, and writes only declared files into the new directory.
 - Receipt creation is opt-in and refuses to overwrite an existing receipt.
+- Receipt verification only reads and hashes the paths recorded in the receipt; it never restores or modifies them.
 
 Receipts include absolute local paths and platform details. Review or redact them before public sharing. Bundle hashes detect corruption or changes but do not authenticate the publisher; only include assets you are licensed to redistribute.
 

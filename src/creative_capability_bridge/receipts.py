@@ -89,6 +89,28 @@ def compare_receipts(left_path: Path, right_path: Path) -> dict[str, Any]:
     }
 
 
+def verify_receipt(path: Path) -> dict[str, Any]:
+    receipt = _load(path)
+    checks: dict[str, Any] = {}
+    for label in ("input", "output"):
+        recorded = receipt.get(label)
+        if recorded is None:
+            checks[label] = None
+            continue
+        if not isinstance(recorded, dict) or not isinstance(recorded.get("path"), str):
+            raise PlanError(f"Receipt {label} record is invalid.")
+        current = file_hash(Path(recorded["path"]))
+        checks[label] = {
+            "path": recorded["path"],
+            "recorded_sha256": recorded.get("sha256"),
+            "current_sha256": current,
+            "exists": current is not None,
+            "matches": current is not None and current == recorded.get("sha256"),
+        }
+    verified = all(item is None or item["matches"] for item in checks.values())
+    return {"receipt": str(path.resolve()), "verified": verified, "files": checks}
+
+
 def _load(path: Path) -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))

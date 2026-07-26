@@ -2,12 +2,24 @@
 
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning.
 
+## [1.2.0] - 2026-07-26
+
+### Added
+
+- Semantic plan linting for operation order, duplicate creation, and target existence, with optional read-only document inspection.
+- Verified bundle extraction into a new destination with path, length, hash, and collision guards.
+- Receipt verification that re-hashes recorded inputs and outputs to report missing files or drift.
+
+### Changed
+
+- Replaced generic wording with specific execution-summary language.
+
 ## [1.1.0] - 2026-07-26
 
 ### Added
 
 - Read-only SVG and Blender document inspection with target, text, font, and transform reporting.
-- Human-readable execution explanations covering file effects, targets, requirements, and approximations.
+- Clear execution summaries covering file effects, targets, requirements, and approximations.
 - Hash-verified portable project bundles with optional assets, license notes, and fallback fonts.
 - Opt-in JSON execution receipts and deterministic receipt comparison.
 - Adapter-neutral intent plans, exact/approximate/unsupported compatibility reports, and safe retargeting.
@@ -28,5 +40,6 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - Local browser plan builder with downloadable plans and a public research roadmap.
 - Cross-platform core CI, native Ubuntu adapter smoke tests, CodeQL, dependency audits, release builds, and project-specific documentation.
 
+[1.2.0]: https://github.com/loganpendragonmultiverse/creative-capability-bridge/releases/tag/v1.2.0
 [1.1.0]: https://github.com/loganpendragonmultiverse/creative-capability-bridge/releases/tag/v1.1.0
 [1.0.0]: https://github.com/loganpendragonmultiverse/creative-capability-bridge/releases/tag/v1.0.0
