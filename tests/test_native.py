@@ -7,7 +7,6 @@ import pytest
 from creative_capability_bridge.adapters import BlenderAdapter, InkscapeAdapter
 from creative_capability_bridge.schema import parse_plan
 
-
 REQUIRE_NATIVE = os.environ.get("CCB_REQUIRE_NATIVE") == "1"
 
 

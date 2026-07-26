@@ -67,3 +67,28 @@ def test_blender_rejects_inkscape_preview_option(tmp_path: Path, capsys) -> None
     plan = write_plan(tmp_path, "blender")
     assert main(["execute", str(plan), "--executable", "blender", "--render-preview", "x.png"]) == 2
     assert "only supported" in capsys.readouterr().err
+
+
+def test_new_read_only_commands(tmp_path: Path, capsys) -> None:  # type: ignore[no-untyped-def]
+    plan = write_plan(tmp_path)
+    assert main(["explain", str(plan)]) == 0
+    assert json.loads(capsys.readouterr().out)["targets_created"] == ["title"]
+    assert main(["compatibility", str(plan)]) == 0
+    assert len(json.loads(capsys.readouterr().out)["adapters"]) == 2
+    svg = tmp_path / "source.svg"
+    svg.write_text('<svg xmlns="http://www.w3.org/2000/svg"><text id="x">X</text></svg>')
+    assert main(["inspect", str(svg)]) == 0
+    assert json.loads(capsys.readouterr().out)["read_only"] is True
+
+
+def test_bundle_and_receipt_cli(tmp_path: Path, capsys) -> None:  # type: ignore[no-untyped-def]
+    plan = write_plan(tmp_path)
+    bundle = tmp_path / "project.ccb.zip"
+    assert main(["bundle", "create", str(plan), str(bundle)]) == 0
+    capsys.readouterr()
+    assert main(["bundle", "verify", str(bundle)]) == 0
+    assert json.loads(capsys.readouterr().out)["valid"] is True
+    receipt = tmp_path / "receipt.json"
+    assert main(["execute", str(plan), "--receipt", str(receipt)]) == 0
+    capsys.readouterr()
+    assert json.loads(receipt.read_text())["status"] == "completed"

@@ -2,6 +2,21 @@
 
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning.
 
+## [1.1.0] - 2026-07-26
+
+### Added
+
+- Read-only SVG and Blender document inspection with target, text, font, and transform reporting.
+- Human-readable execution explanations covering file effects, targets, requirements, and approximations.
+- Hash-verified portable project bundles with optional assets, license notes, and fallback fonts.
+- Opt-in JSON execution receipts and deterministic receipt comparison.
+- Adapter-neutral intent plans, exact/approximate/unsupported compatibility reports, and safe retargeting.
+
+### Changed
+
+- Capability manifests now publish tested native-application version ranges.
+- Project documentation and browser reference page now describe the complete portable workflow and its limits.
+
 ## [1.0.0] - 2026-07-22
 
 ### Added
@@ -13,5 +28,5 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - Local browser plan builder with downloadable plans and a public research roadmap.
 - Cross-platform core CI, native Ubuntu adapter smoke tests, CodeQL, dependency audits, release builds, and project-specific documentation.
 
+[1.1.0]: https://github.com/loganpendragonmultiverse/creative-capability-bridge/releases/tag/v1.1.0
 [1.0.0]: https://github.com/loganpendragonmultiverse/creative-capability-bridge/releases/tag/v1.0.0
-

@@ -53,9 +53,11 @@ def test_execute_checks_for_binary(tmp_path: Path) -> None:
 
 def test_execute_requires_created_output(tmp_path: Path) -> None:
     result = type("Result", (), {"returncode": 0, "stdout": "", "stderr": ""})()
-    with patch("creative_capability_bridge.adapters.blender.subprocess.run", return_value=result):
-        with pytest.raises(PlanError, match="did not create"):
-            BlenderAdapter("blender-test").execute(make_plan(tmp_path))
+    with (
+        patch("creative_capability_bridge.adapters.blender.subprocess.run", return_value=result),
+        pytest.raises(PlanError, match="did not create"),
+    ):
+        BlenderAdapter("blender-test").execute(make_plan(tmp_path))
 
 
 def test_execute_returns_output_from_successful_process(tmp_path: Path) -> None:
@@ -71,9 +73,11 @@ def test_execute_returns_output_from_successful_process(tmp_path: Path) -> None:
 
 def test_execute_surfaces_process_failure(tmp_path: Path) -> None:
     result = type("Result", (), {"returncode": 9, "stdout": "", "stderr": "native failure"})()
-    with patch("creative_capability_bridge.adapters.blender.subprocess.run", return_value=result):
-        with pytest.raises(PlanError, match="native failure"):
-            BlenderAdapter("blender-test").execute(make_plan(tmp_path))
+    with (
+        patch("creative_capability_bridge.adapters.blender.subprocess.run", return_value=result),
+        pytest.raises(PlanError, match="native failure"),
+    ):
+        BlenderAdapter("blender-test").execute(make_plan(tmp_path))
 
 
 def test_execute_refuses_existing_output(tmp_path: Path) -> None:
@@ -81,3 +85,11 @@ def test_execute_refuses_existing_output(tmp_path: Path) -> None:
     plan.output_path.write_bytes(b"keep")
     with pytest.raises(PlanError, match="already exists"):
         BlenderAdapter("blender-test").execute(plan)
+
+
+def test_application_version() -> None:
+    result = type("Result", (), {"returncode": 0, "stdout": "Blender 4.3.0\n"})()
+    with patch("creative_capability_bridge.adapters.blender.subprocess.run", return_value=result):
+        assert BlenderAdapter("blender").application_version() == "Blender 4.3.0"
+    with patch("creative_capability_bridge.adapters.blender.shutil.which", return_value=None):
+        assert BlenderAdapter().application_version() is None

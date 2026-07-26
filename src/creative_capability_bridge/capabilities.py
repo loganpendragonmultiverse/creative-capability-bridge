@@ -15,15 +15,18 @@ def manifest(adapter: str) -> dict[str, Any]:
             "transform.set": ["x", "y", "rotation_degrees", "scale_x", "scale_y"],
         },
         "guarantees": ["source-preserved", "explicit-output", "structured-errors"],
+        "tested_versions": [],
     }
     if adapter == "blender":
         common["application"] = "Blender"
         common["transport"] = "background Python script"
+        common["tested_versions"] = ["Blender 3.4", "Blender 4.x"]
         common["operations"]["text.create"] += ["x", "y", "z"]
         common["operations"]["transform.set"] += ["z", "scale_z"]
     elif adapter == "inkscape":
         common["application"] = "Inkscape"
         common["transport"] = "SVG document adapter with optional Inkscape CLI preview"
+        common["tested_versions"] = ["Inkscape 1.2+"]
         common["operations"]["text.create"] += ["x", "y"]
     else:
         raise KeyError(adapter)

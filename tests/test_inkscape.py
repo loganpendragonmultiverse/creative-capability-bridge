@@ -1,6 +1,6 @@
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from unittest.mock import patch
-import xml.etree.ElementTree as ET
 
 import pytest
 
@@ -156,3 +156,11 @@ def test_preview_requires_native_executable(tmp_path: Path) -> None:
     )
     with pytest.raises(PlanError, match="not found"):
         InkscapeAdapter().execute(plan, render_preview=tmp_path / "preview.png")
+
+
+def test_application_version() -> None:
+    result = type("Result", (), {"returncode": 0, "stdout": "Inkscape 1.4\n"})()
+    with patch("creative_capability_bridge.adapters.inkscape.subprocess.run", return_value=result):
+        assert InkscapeAdapter("inkscape").application_version() == "Inkscape 1.4"
+    with patch("creative_capability_bridge.adapters.inkscape.shutil.which", return_value=None):
+        assert InkscapeAdapter().application_version() is None

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "adapter": "auto",
+  "input": null,
+  "output": "output",
+  "operations": [
+    {
+      "capability": "text.create",
+      "target": "title",
+      "parameters": {
+        "content": "Portable intent",
+        "font_size": 48,
+        "alignment": "center",
+        "fill": "#1D2522",
+        "x": 600,
+        "y": 300
+      }
+    }
+  ]
+}
