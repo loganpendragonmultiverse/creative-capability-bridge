@@ -6,7 +6,7 @@
 
 Creative Capability Bridge (CCB) is a versioned protocol, adapter toolkit, and reference plan builder for expressing common creative operations once and translating them for different applications.
 
-Version 1.0 supports text creation, text updates, and explicit transforms through Blender and Inkscape adapters. It is deliberately a small proof of the capability-oriented architecture—not a replacement interface for every creative application.
+Version 1.1 supports text creation, text updates, and explicit transforms through Blender and Inkscape adapters, plus read-only inspection, human-readable explanations, portable bundles, execution receipts, and adapter compatibility negotiation. It is deliberately a focused capability layer—not a replacement interface for every creative application.
 
 **[Open the plan builder](https://loganpendragonmultiverse.github.io/creative-capability-bridge/)**
 
@@ -41,6 +41,27 @@ The protocol is the stable center. Applications remain installed separately, ups
 | Native preview rendering | Through Blender output | Optional Inkscape CLI PNG export |
 
 Use `ccb capabilities --json` for the machine-readable manifests.
+
+## Portable workflow
+
+CCB 1.1 adds five reviewable stages around execution:
+
+```bash
+ccb inspect source.svg
+ccb explain plan.json
+ccb compatibility examples/portable-text.json
+ccb retarget examples/portable-text.json --adapter inkscape --output inkscape-plan.json
+ccb bundle create inkscape-plan.json project.ccb.zip --asset LICENSE.txt --fallback-font sans-serif
+ccb bundle verify project.ccb.zip
+ccb execute inkscape-plan.json --receipt receipt.json
+ccb compare-receipts receipt-a.json receipt-b.json
+```
+
+- `inspect` reads `.svg` metadata directly and uses Blender's background mode for `.blend`; it does not save the source.
+- `explain` lists files read/created, replacement state, created/modified targets, requirements, and known approximations.
+- Bundles contain `plan.json`, optional `assets/`, and a manifest with SHA-256 hashes, license notes, fallback fonts, and archive-relative paths.
+- Receipts record tool/application versions, hashes, operations, warnings, platform, and elapsed time after a successful execution. They contain paths and may expose local directory names, so review them before sharing.
+- `adapter: "auto"` is valid for compatibility and retargeting only. Execution still requires a concrete, validated adapter plan.
 
 ## Three-minute start
 
@@ -102,6 +123,7 @@ See [protocol details](docs/protocol.md) and [adapter authoring](docs/adapter-au
 
 - Plans are plain JSON and can be reviewed before execution.
 - Unknown operations, fields, adapters, dimensions, and unsafe same-file outputs fail closed.
+- Bundle verification rejects duplicate or traversal paths and validates declared lengths and SHA-256 hashes before use.
 - Inkscape editing uses its documented SVG format; optional native preview invokes the Inkscape CLI.
 - Blender receives a generated background Python script containing a base64-encoded, already-validated plan.
 - Originals are never overwritten.
@@ -113,6 +135,9 @@ Read the complete [security model](docs/security-model.md).
 ## Honest limitations
 
 - Version 1 is file-oriented. It does not synchronize with a selection in an already-open GUI.
+- Inspection exposes supported metadata, not a complete application scene graph, and cannot guarantee that every native object is semantically editable.
+- Bundles verify integrity, not publisher identity or asset licensing; license notes remain human-supplied.
+- Receipts prove what one local execution reported and hashed. They are not cryptographically signed attestations.
 - Blender and Inkscape are not interchangeable. CCB exposes a common core and rejects unsupported dimensions rather than inventing equivalence.
 - The Blender font-family field records the requested family because reliable cross-platform font resolution needs a future explicit font-mapping contract.
 - Inkscape document edits are deterministic SVG operations; Inkscape itself is invoked only for optional native preview rendering.
@@ -158,7 +183,7 @@ CCB runs locally on Windows, macOS, and Linux wherever Python and the selected a
 
 Contributions are welcome through reviewed pull requests. Start with [CONTRIBUTING.md](CONTRIBUTING.md), the [development guide](DEVELOPMENT.md), and the adapter contract. Compatibility reports should include the operating system, application version, plan, expected semantic result, and actual result using synthetic fixtures where possible.
 
-Version 1.0.0 is feature-complete for its documented scope. Maintenance prioritizes correctness, safe file handling, compatibility evidence, and a small comprehensible protocol over rapidly adding application-specific commands.
+Version 1.1.0 is feature-complete for its documented scope. Maintenance prioritizes correctness, safe file handling, compatibility evidence, and a small comprehensible protocol over rapidly adding application-specific commands.
 
 ## License
 

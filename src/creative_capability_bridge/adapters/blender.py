@@ -28,6 +28,18 @@ class BlenderAdapter:
             "operation_count": len(plan.operations),
         }
 
+    def application_version(self) -> str | None:
+        if not self.executable:
+            return None
+        result = subprocess.run(
+            [self.executable, "--version"], capture_output=True, text=True, timeout=30, check=False
+        )
+        return (
+            result.stdout.splitlines()[0].strip()
+            if result.returncode == 0 and result.stdout
+            else None
+        )
+
     def execute(self, plan: Plan, *, replace: bool = False) -> Path:
         if not self.executable:
             raise PlanError(

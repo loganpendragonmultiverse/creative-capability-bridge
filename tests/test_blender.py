@@ -81,3 +81,11 @@ def test_execute_refuses_existing_output(tmp_path: Path) -> None:
     plan.output_path.write_bytes(b"keep")
     with pytest.raises(PlanError, match="already exists"):
         BlenderAdapter("blender-test").execute(plan)
+
+
+def test_application_version() -> None:
+    result = type("Result", (), {"returncode": 0, "stdout": "Blender 4.3.0\n"})()
+    with patch("creative_capability_bridge.adapters.blender.subprocess.run", return_value=result):
+        assert BlenderAdapter("blender").application_version() == "Blender 4.3.0"
+    with patch("creative_capability_bridge.adapters.blender.shutil.which", return_value=None):
+        assert BlenderAdapter().application_version() is None

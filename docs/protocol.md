@@ -14,3 +14,12 @@ Colors use `#RRGGBB` or `#RRGGBBAA`. Scales and font sizes must be positive. Coo
 
 Protocol v1 deliberately does not define pivots, unit conversion, arbitrary scripts, nested operation graphs, live selections, or undo synchronization.
 
+## Intent plans and negotiation
+
+An intent plan may use `"adapter": "auto"` and an extensionless output. It is not executable. `ccb compatibility` validates a concrete projection for every bundled adapter and reports each as `exact`, `approximate`, or `unsupported`. `ccb retarget` writes a new concrete plan with the correct output extension and runs the ordinary strict validator before writing it.
+
+This separation is intentional: negotiation can discuss portability, while execution never guesses an application.
+
+## Evidence formats
+
+Bundle manifests and execution receipts are independently versioned at `1`. They do not change protocol plan version 1. A bundle uses archive-relative paths and SHA-256 file hashes. A receipt records a completed execution, its output hash, operation results, versions, warnings, and elapsed time.

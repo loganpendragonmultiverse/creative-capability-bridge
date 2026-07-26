@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Build portable capability plans for Blender and Inkscape without learning a different interaction model for every application.">
+  <meta name="description" content="Build, inspect, negotiate, bundle, execute, and verify portable capability plans for Blender and Inkscape.">
   <title>Creative Capability Bridge</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -17,7 +17,7 @@
     <section class="hero">
       <p class="eyebrow">One intent. Multiple creative tools.</p>
       <h1>Stop relearning the same operation.</h1>
-      <p class="lede">Creative Capability Bridge defines a small, inspectable protocol for text and transforms, then translates it through application-specific adapters.</p>
+      <p class="lede">Creative Capability Bridge defines a small, inspectable protocol for text and transforms, then helps you inspect documents, negotiate compatibility, package assets, and verify execution.</p>
       <div class="hero-actions"><a class="button primary" href="#builder">Build a plan</a><a class="button" href="https://github.com/loganpendragonmultiverse/creative-capability-bridge#three-minute-start">Install the CLI</a></div>
       <ul class="proof" aria-label="Project boundaries"><li>Local execution</li><li>Source-preserving defaults</li><li>No runtime AI</li></ul>
     </section>
@@ -25,6 +25,11 @@
     <section class="explainer" aria-labelledby="how-title">
       <div><p class="eyebrow">Protocol, not a skin</p><h2 id="how-title">The shared layer stays small.</h2></div>
       <ol><li><strong>Describe</strong><span>Build a versioned JSON plan with explicit targets and units.</span></li><li><strong>Validate</strong><span>Reject unsupported fields before an application is launched.</span></li><li><strong>Translate</strong><span>Use a Blender background script or an Inkscape SVG adapter.</span></li><li><strong>Preserve</strong><span>Write a separate output instead of silently changing the original.</span></li></ol>
+    </section>
+
+    <section class="explainer" aria-labelledby="evidence-title">
+      <div><p class="eyebrow">New in 1.1</p><h2 id="evidence-title">Carry evidence with the work.</h2></div>
+      <ol><li><strong>Inspect</strong><span>Discover IDs, text, fonts, and transforms without saving the source.</span></li><li><strong>Negotiate</strong><span>See exact, approximate, or unsupported adapter results before retargeting.</span></li><li><strong>Bundle</strong><span>Package plans and assets with hashes, fallback fonts, and license notes.</span></li><li><strong>Verify</strong><span>Record output hashes and compare execution receipts across systems.</span></li></ol>
     </section>
 
     <section class="builder" id="builder" aria-labelledby="builder-title">
@@ -58,4 +63,3 @@
   <script type="module" src="app.js"></script>
 </body>
 </html>
-
