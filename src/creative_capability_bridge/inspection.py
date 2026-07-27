@@ -24,7 +24,9 @@ def inspect_document(path: Path, *, executable: str | None = None) -> dict[str, 
         return _inspect_svg(source)
     if suffix == ".blend":
         return _inspect_blend(source, executable)
-    raise PlanError("Inspection supports .svg and .blend documents.")
+    if suffix == ".xcf":
+        return _inspect_xcf(source, executable)
+    raise PlanError("Inspection supports .svg, .blend, and .xcf documents.")
 
 
 def _inspect_svg(path: Path) -> dict[str, Any]:
@@ -88,6 +90,64 @@ def _inspect_blend(path: Path, executable: str | None) -> dict[str, Any]:
             raise PlanError(f"Blender inspection failed: {detail}")
         payload = json.loads(output.read_text(encoding="utf-8"))
     return {"format": "blend", "path": str(path), "read_only": True, "objects": payload}
+
+
+def _inspect_xcf(path: Path, executable: str | None) -> dict[str, Any]:
+    from .adapters.gimp import GimpAdapter
+
+    adapter = GimpAdapter(executable)
+    if not adapter.executable:
+        raise PlanError("GIMP 3 executable was not found. Install GIMP 3 or pass --executable.")
+    with tempfile.TemporaryDirectory(prefix="ccb-inspect-gimp-") as temp_dir:
+        output = Path(temp_dir) / "layers.tsv"
+        script = Path(temp_dir) / "inspect.scm"
+        source = str(path).replace("\\", "/")
+        target = str(output).replace("\\", "/")
+        script.write_text(
+            f"""(script-fu-use-v3)
+(let* ((image (gimp-file-load RUN-NONINTERACTIVE {json.dumps(source)}))
+       (port (open-output-file {json.dumps(target)})))
+  (for-each
+    (lambda (layer)
+      (let* ((offsets (gimp-drawable-get-offsets layer)))
+        (display (gimp-item-get-name layer) port) (display "\\t" port)
+        (display (gimp-drawable-get-width layer) port) (display "\\t" port)
+        (display (gimp-drawable-get-height layer) port) (display "\\t" port)
+        (display (vector-ref offsets 0) port) (display "\\t" port)
+        (display (vector-ref offsets 1) port) (newline port)))
+    (vector->list (gimp-image-get-layers image)))
+  (close-output-port port)
+  (gimp-image-delete image))
+""",
+            encoding="utf-8",
+        )
+        result = subprocess.run(
+            adapter._command(script),
+            capture_output=True,
+            text=True,
+            timeout=180,
+            check=False,
+        )
+        if result.returncode != 0 or not output.is_file():
+            detail = (result.stderr or result.stdout).strip()[-2000:]
+            raise PlanError(f"GIMP inspection failed: {detail}")
+        objects = []
+        for line in output.read_text(encoding="utf-8").splitlines():
+            fields = line.split("\t")
+            if len(fields) != 5:
+                continue
+            objects.append(
+                {
+                    "id": fields[0],
+                    "type": "layer",
+                    "modifiable": bool(fields[0]),
+                    "width": int(fields[1]),
+                    "height": int(fields[2]),
+                    "x": int(fields[3]),
+                    "y": int(fields[4]),
+                }
+            )
+    return {"format": "xcf", "path": str(path), "read_only": True, "objects": objects}
 
 
 _BLENDER_INSPECTION_SCRIPT = r"""import json

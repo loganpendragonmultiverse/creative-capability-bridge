@@ -28,10 +28,16 @@ def manifest(adapter: str) -> dict[str, Any]:
         common["transport"] = "SVG document adapter with optional Inkscape CLI preview"
         common["tested_versions"] = ["Inkscape 1.2+"]
         common["operations"]["text.create"] += ["x", "y"]
+    elif adapter == "gimp":
+        common["application"] = "GIMP"
+        common["transport"] = "GIMP 3 Script-Fu batch interpreter"
+        common["tested_versions"] = ["GIMP 3.0+"]
+        common["operations"]["text.create"] += ["x", "y"]
+        common["guarantees"].append("transaction-ready")
     else:
         raise KeyError(adapter)
     return common
 
 
 def all_manifests() -> list[dict[str, Any]]:
-    return [manifest("blender"), manifest("inkscape")]
+    return [manifest("blender"), manifest("inkscape"), manifest("gimp")]

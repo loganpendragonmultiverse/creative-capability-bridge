@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "adapter": "gimp",
+  "input": null,
+  "output": "output/gimp-text.xcf",
+  "coordinate_space": {
+    "unit": "px",
+    "origin": "top-left",
+    "y_axis": "down",
+    "dpi": 96,
+    "width": 1200,
+    "height": 800
+  },
+  "operations": [
+    {
+      "id": "create-title",
+      "tags": ["titles", "first-pass"],
+      "capability": "text.create",
+      "target": "title",
+      "parameters": {
+        "content": "Portable creative work",
+        "font_family": "Sans-serif",
+        "font_size": 64,
+        "alignment": "center",
+        "fill": "#24342FFF",
+        "x": 600,
+        "y": 350
+      }
+    }
+  ]
+}

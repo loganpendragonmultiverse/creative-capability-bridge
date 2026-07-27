@@ -31,7 +31,7 @@ def test_parses_valid_plan_relative_to_base(tmp_path: Path) -> None:
     ("field", "value", "message"),
     [
         ("version", 2, "version"),
-        ("adapter", "gimp", "Adapter"),
+        ("adapter", "paint", "Adapter"),
         ("output", "", "output"),
         ("operations", [], "operations"),
     ],

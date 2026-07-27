@@ -1,0 +1,14 @@
+{
+  "policy_version": 1,
+  "name": "reviewed-local-output",
+  "allowed_adapters": ["blender", "inkscape", "gimp"],
+  "allowed_capabilities": ["text.create", "text.update", "transform.set"],
+  "output_roots": ["output"],
+  "max_operations": 50,
+  "max_input_bytes": 250000000,
+  "require_input": false,
+  "require_receipt": true,
+  "require_inspection": false,
+  "allow_replace": false,
+  "require_signed_bundle": false
+}

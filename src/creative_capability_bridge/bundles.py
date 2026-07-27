@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .schema import PlanError, load_plan
+from .signing import sign_payload, verify_payload_signature
 
 BUNDLE_VERSION = 1
 
@@ -21,6 +22,7 @@ def create_bundle(
     assets: Iterable[Path] = (),
     license_notes: str | None = None,
     fallback_fonts: Iterable[str] = (),
+    signing_key: Path | None = None,
 ) -> Path:
     load_plan(plan_path)
     target = destination.resolve()
@@ -48,6 +50,8 @@ def create_bundle(
         "fallback_fonts": list(dict.fromkeys(fallback_fonts)),
         "path_policy": "archive-relative",
     }
+    if signing_key:
+        manifest["signature"] = sign_payload(manifest, signing_key)
     target.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for name, data in files:
@@ -56,7 +60,12 @@ def create_bundle(
     return target
 
 
-def verify_bundle(path: Path) -> dict[str, Any]:
+def verify_bundle(
+    path: Path,
+    *,
+    public_key: Path | None = None,
+    require_signature: bool = False,
+) -> dict[str, Any]:
     source = path.resolve()
     try:
         with zipfile.ZipFile(source) as archive:
@@ -70,6 +79,19 @@ def verify_bundle(path: Path) -> dict[str, Any]:
                 raise PlanError("Bundle manifest must be a JSON object.")
             if manifest.get("bundle_version") != BUNDLE_VERSION:
                 raise PlanError("Bundle version is not supported.")
+            signature = manifest.get("signature")
+            unsigned_manifest = dict(manifest)
+            unsigned_manifest.pop("signature", None)
+            if public_key:
+                signature_report = verify_payload_signature(
+                    unsigned_manifest, signature, public_key
+                )
+            else:
+                signature_report = {
+                    "present": signature is not None,
+                    "verified": None,
+                    "reason": "no public key supplied" if signature is not None else None,
+                }
             checked = []
             for item in manifest.get("files", []):
                 if not isinstance(item, dict):
@@ -89,13 +111,27 @@ def verify_bundle(path: Path) -> dict[str, Any]:
                 and manifest.get("plan") in names
                 and declared == set(names) - {"manifest.json"}
             )
+            if require_signature:
+                valid = valid and signature_report.get("verified") is True
     except (OSError, zipfile.BadZipFile, KeyError, json.JSONDecodeError) as exc:
         raise PlanError(f"Could not verify bundle: {exc}") from exc
-    return {"bundle": str(source), "valid": valid, "files": checked, "manifest": manifest}
+    return {
+        "bundle": str(source),
+        "valid": valid,
+        "files": checked,
+        "manifest": manifest,
+        "signature": signature_report,
+    }
 
 
-def extract_bundle(path: Path, destination: Path) -> Path:
-    report = verify_bundle(path)
+def extract_bundle(
+    path: Path,
+    destination: Path,
+    *,
+    public_key: Path | None = None,
+    require_signature: bool = False,
+) -> Path:
+    report = verify_bundle(path, public_key=public_key, require_signature=require_signature)
     if not report["valid"]:
         raise PlanError("Bundle failed verification and was not extracted.")
     target = destination.resolve()

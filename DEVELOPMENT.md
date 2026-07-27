@@ -24,13 +24,19 @@ npm run build
 python -m build
 ```
 
-Native tests are opt-in locally because Blender and Inkscape are large external applications:
+Native tests are opt-in locally because Blender, Inkscape, and GIMP are large external applications:
 
 ```bash
 CCB_REQUIRE_NATIVE=1 pytest tests/test_native.py
 ```
 
 GitHub CI installs both applications on Ubuntu and requires those smoke tests.
+
+GIMP 3 conformance is currently an explicit operator check:
+
+```bash
+ccb conformance gimp --native
+```
 
 ## Adapter rule
 
@@ -39,4 +45,3 @@ An adapter must preserve the input, refuse an existing output by default, expose
 ## Releases
 
 Update version metadata, changelog, compatibility documentation, README claims, examples, release assets, repository description/topics, and the Forge catalog together. Tags use `vMAJOR.MINOR.PATCH`.
-

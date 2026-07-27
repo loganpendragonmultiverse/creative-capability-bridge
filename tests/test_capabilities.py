@@ -5,7 +5,7 @@ from creative_capability_bridge.capabilities import all_manifests, manifest
 
 def test_manifests_expose_transport_and_guarantees() -> None:
     manifests = all_manifests()
-    assert [item["adapter"] for item in manifests] == ["blender", "inkscape"]
+    assert [item["adapter"] for item in manifests] == ["blender", "inkscape", "gimp"]
     assert all("source-preserved" in item["guarantees"] for item in manifests)
 
 

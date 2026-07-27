@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Build, inspect, negotiate, bundle, execute, and verify portable capability plans for Blender and Inkscape.">
+  <meta name="description" content="Build, inspect, coordinate, execute, and verify portable capability plans for Blender, Inkscape, and GIMP.">
   <title>Creative Capability Bridge</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -17,26 +17,26 @@
     <section class="hero">
       <p class="eyebrow">One intent. Multiple creative tools.</p>
       <h1>Stop relearning the same operation.</h1>
-      <p class="lede">Creative Capability Bridge defines a small, inspectable protocol for text and transforms, then helps you inspect documents, negotiate compatibility, package assets, and verify execution.</p>
+      <p class="lede">Creative Capability Bridge defines a small, inspectable protocol for text and transforms, then adds transactions, rollback, policies, pipelines, signed evidence, and adapters for Blender, Inkscape, and GIMP 3.</p>
       <div class="hero-actions"><a class="button primary" href="#builder">Build a plan</a><a class="button" href="https://github.com/loganpendragonmultiverse/creative-capability-bridge#three-minute-start">Install the CLI</a></div>
       <ul class="proof" aria-label="Project boundaries"><li>Local execution</li><li>Source-preserving defaults</li><li>No runtime AI</li></ul>
     </section>
 
     <section class="explainer" aria-labelledby="how-title">
       <div><p class="eyebrow">Protocol, not a skin</p><h2 id="how-title">The shared layer stays small.</h2></div>
-      <ol><li><strong>Describe</strong><span>Build a versioned JSON plan with explicit targets and units.</span></li><li><strong>Validate</strong><span>Reject unsupported fields before an application is launched.</span></li><li><strong>Translate</strong><span>Use a Blender background script or an Inkscape SVG adapter.</span></li><li><strong>Preserve</strong><span>Write a separate output instead of silently changing the original.</span></li></ol>
+      <ol><li><strong>Describe</strong><span>Build a versioned JSON plan with explicit targets and units.</span></li><li><strong>Validate</strong><span>Apply schemas, target linting, policies, and adapter negotiation before launch.</span></li><li><strong>Translate</strong><span>Use Blender background Python, direct SVG, or GIMP 3 Script-Fu.</span></li><li><strong>Preserve</strong><span>Stage and inspect outputs transactionally with rollback for replacements.</span></li></ol>
     </section>
 
     <section class="explainer" aria-labelledby="evidence-title">
       <div><p class="eyebrow">Verification toolkit</p><h2 id="evidence-title">Carry evidence with the work.</h2></div>
-      <ol><li><strong>Inspect + lint</strong><span>Discover document targets and check operation order before execution.</span></li><li><strong>Negotiate</strong><span>See exact, approximate, or unsupported adapter results before retargeting.</span></li><li><strong>Bundle</strong><span>Package, verify, and safely extract plans and assets with recorded hashes.</span></li><li><strong>Verify</strong><span>Re-hash receipt files and compare executions across systems.</span></li></ol>
+      <ol><li><strong>Inspect + diff</strong><span>Discover targets and compare semantic changes instead of relying only on file hashes.</span></li><li><strong>Resume</strong><span>Select operations by ID or tag and continue only when checkpoint hashes still match.</span></li><li><strong>Coordinate</strong><span>Normalize physical units, pixels, Blender units, origins, axes, and rotation direction.</span></li><li><strong>Authenticate</strong><span>Optionally sign bundle manifests and receipts with local Ed25519 keys.</span></li></ol>
     </section>
 
     <section class="builder" id="builder" aria-labelledby="builder-title">
       <div class="section-heading"><p class="eyebrow">Reference interface</p><h2 id="builder-title">Build an inspectable plan.</h2><p>This page creates JSON only. Execution remains an explicit local CLI step.</p></div>
       <form id="plan-form">
         <div class="form-grid">
-          <label>Application<select id="adapter" name="adapter"><option value="inkscape">Inkscape</option><option value="blender">Blender</option></select></label>
+          <label>Application<select id="adapter" name="adapter"><option value="inkscape">Inkscape</option><option value="blender">Blender</option><option value="gimp">GIMP 3</option></select></label>
           <label>Input file <small>optional</small><input name="input" placeholder="source.svg"></label>
           <label>Output file<input id="output-path" name="output" value="output.svg" required></label>
           <div class="transport"><small>Adapter transport</small><strong id="transport"></strong></div>
@@ -57,7 +57,7 @@
       <div class="plan-panel"><div><div class="panel-title"><h3>Operation queue</h3><span id="status" role="status" aria-live="polite"></span></div><ol id="operations" class="operations"></ol></div><div><div class="panel-title"><h3>Plan preview</h3><button id="download" class="button small" type="button">Download JSON</button></div><pre id="plan-output">Add an operation to generate a plan.</pre></div></div>
     </section>
 
-    <section class="roadmap" id="roadmap" aria-labelledby="roadmap-title"><div><p class="eyebrow">Research, not promises</p><h2 id="roadmap-title">Where the bridge could go next.</h2><p>Future work advances only when application semantics can be specified and tested honestly.</p></div><div class="roadmap-grid"><article><span>02</span><h3>Live adapter sessions</h3><p>Local plug-in bridges for selection, state, undo, and transaction synchronization.</p></article><article><span>03</span><h3>More applications</h3><p>Conformance-researched adapters for GIMP and FreeCAD.</p></article><article><span>04</span><h3>More capabilities</h3><p>Color fills, export profiles, asset browsing, parameter editing, and timelines.</p></article><article><span>05</span><h3>Guarded language planning</h3><p>Optional natural-language proposals that produce visible protocol commands—not arbitrary scripts—and require confirmation.</p></article></div></section>
+    <section class="roadmap" id="roadmap" aria-labelledby="roadmap-title"><div><p class="eyebrow">Research, not promises</p><h2 id="roadmap-title">Where the bridge could go next.</h2><p>Future work advances only when application semantics can be specified and tested honestly.</p></div><div class="roadmap-grid"><article><span>02</span><h3>Live adapter sessions</h3><p>Local plug-in bridges for selection, state, undo groups, and event synchronization.</p></article><article><span>03</span><h3>More applications</h3><p>Conformance-researched adapters for FreeCAD and other tools with compatible semantics.</p></article><article><span>04</span><h3>More capabilities</h3><p>Export profiles, asset browsing, parameter editing, timelines, and explicit pivot contracts.</p></article><article><span>05</span><h3>Guarded language planning</h3><p>Optional proposals that produce visible protocol commands—not arbitrary scripts—and require confirmation.</p></article></div></section>
   </main>
   <footer><strong>Creative Capability Bridge</strong><span>MIT licensed · Local-first · Maintained by Logan Pendragon Multiverse</span></footer>
   <script type="module" src="app.js"></script>

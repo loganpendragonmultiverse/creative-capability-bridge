@@ -10,6 +10,12 @@ export const CAPABILITIES = {
     output: "output.svg",
     dimensions: 2,
     transport: "SVG document adapter + optional CLI preview"
+  },
+  gimp: {
+    label: "GIMP 3",
+    output: "output.xcf",
+    dimensions: 2,
+    transport: "GIMP 3 Script-Fu batch adapter"
   }
 };
 
@@ -67,4 +73,3 @@ export function makeTransformOperation(values) {
   }
   return { capability: "transform.set", target: values.target, parameters };
 }
-

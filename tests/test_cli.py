@@ -60,7 +60,11 @@ def test_plain_capabilities_and_doctor(capsys) -> None:  # type: ignore[no-untyp
     assert "Blender" in capsys.readouterr().out
     with patch("creative_capability_bridge.cli.shutil.which", return_value=None):
         assert main(["doctor"]) == 1
-    assert json.loads(capsys.readouterr().out) == {"blender": None, "inkscape": None}
+    assert json.loads(capsys.readouterr().out) == {
+        "blender": None,
+        "inkscape": None,
+        "gimp": None,
+    }
 
 
 def test_blender_rejects_inkscape_preview_option(tmp_path: Path, capsys) -> None:  # type: ignore[no-untyped-def]
@@ -74,7 +78,7 @@ def test_new_read_only_commands(tmp_path: Path, capsys) -> None:  # type: ignore
     assert main(["explain", str(plan)]) == 0
     assert json.loads(capsys.readouterr().out)["targets_created"] == ["title"]
     assert main(["compatibility", str(plan)]) == 0
-    assert len(json.loads(capsys.readouterr().out)["adapters"]) == 2
+    assert len(json.loads(capsys.readouterr().out)["adapters"]) == 3
     svg = tmp_path / "source.svg"
     svg.write_text('<svg xmlns="http://www.w3.org/2000/svg"><text id="x">X</text></svg>')
     assert main(["inspect", str(svg)]) == 0

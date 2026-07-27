@@ -19,7 +19,7 @@ def load_intent(path: Path) -> tuple[dict[str, Any], Path]:
         raise PlanError("Plan root must be a JSON object.")
     adapter = payload.get("adapter")
     if adapter not in (*ADAPTERS, "auto"):
-        raise PlanError("Adapter must be blender, inkscape, or auto.")
+        raise PlanError("Adapter must be blender, inkscape, gimp, or auto.")
     return payload, path.resolve().parent
 
 
@@ -45,9 +45,8 @@ def retarget(path: Path, adapter: str, destination: Path) -> Path:
     output = converted.get("output")
     if not isinstance(output, str) or not output.strip():
         output = "output"
-    converted["output"] = str(
-        Path(output).with_suffix(".blend" if adapter == "blender" else ".svg")
-    )
+    suffix = {"blender": ".blend", "inkscape": ".svg", "gimp": ".xcf"}[adapter]
+    converted["output"] = str(Path(output).with_suffix(suffix))
     parse_plan(converted, base_dir=base)
     target = destination.resolve()
     if target.exists():
@@ -63,9 +62,8 @@ def _for_adapter(payload: dict[str, Any], base: Path, adapter: str) -> dict[str,
     output = candidate.get("output")
     if not isinstance(output, str) or not output.strip():
         output = "output"
-    candidate["output"] = str(
-        Path(output).with_suffix(".blend" if adapter == "blender" else ".svg")
-    )
+    suffix = {"blender": ".blend", "inkscape": ".svg", "gimp": ".xcf"}[adapter]
+    candidate["output"] = str(Path(output).with_suffix(suffix))
     approximations: list[str] = []
     if adapter == "blender":
         for operation in candidate.get("operations", []):
