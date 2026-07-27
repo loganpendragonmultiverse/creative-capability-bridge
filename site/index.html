@@ -10,7 +10,7 @@
 <body>
   <header class="topbar">
     <a class="brand" href="#top" aria-label="Creative Capability Bridge home">CCB <span>01</span></a>
-    <nav aria-label="Primary"><a href="#builder">Plan builder</a><a href="#roadmap">Research roadmap</a><a href="https://github.com/loganpendragonmultiverse/creative-capability-bridge">GitHub</a></nav>
+    <nav aria-label="Primary"><a href="#capabilities">Capabilities</a><a href="#builder">Plan builder</a><a href="#roadmap">Research roadmap</a><a href="https://github.com/loganpendragonmultiverse/creative-capability-bridge">GitHub</a></nav>
   </header>
 
   <main id="top">
@@ -30,6 +30,22 @@
     <section class="explainer" aria-labelledby="evidence-title">
       <div><p class="eyebrow">Verification toolkit</p><h2 id="evidence-title">Carry evidence with the work.</h2></div>
       <ol><li><strong>Inspect + diff</strong><span>Discover targets and compare semantic changes instead of relying only on file hashes.</span></li><li><strong>Resume</strong><span>Select operations by ID or tag and continue only when checkpoint hashes still match.</span></li><li><strong>Coordinate</strong><span>Normalize physical units, pixels, Blender units, origins, axes, and rotation direction.</span></li><li><strong>Authenticate</strong><span>Optionally sign bundle manifests and receipts with local Ed25519 keys.</span></li></ol>
+    </section>
+
+    <section class="capabilities" id="capabilities" aria-labelledby="capabilities-title">
+      <div class="section-heading"><p class="eyebrow">Version 1.3 execution platform</p><h2 id="capabilities-title">More than plan translation.</h2><p>CCB now coordinates complete, reviewable execution workflows while keeping version 1 plans compatible.</p></div>
+      <div class="capability-grid">
+        <article><span>01</span><h3>Semantic document diffs</h3><p>Compare meaningful document structure before and after execution, not only opaque file hashes.</p></article>
+        <article><span>02</span><h3>Transactional execution</h3><p>Stage and inspect output before atomic replacement, retaining rollback backups when existing files change.</p></article>
+        <article><span>03</span><h3>Resumable plans</h3><p>Continue from hash-bound checkpoints while refusing output, plan, or state drift.</p></article>
+        <article><span>04</span><h3>Selective operations</h3><p>Run, skip, or resume from specific operation IDs and tags without rewriting a plan.</p></article>
+        <article><span>05</span><h3>Coordinate normalization</h3><p>Translate units, origins, axes, DPI, dimensions, and rotation direction explicitly.</p></article>
+        <article><span>06</span><h3>Policy profiles</h3><p>Constrain adapters, capabilities, paths, sizes, replacement, inspection, receipts, and signatures.</p></article>
+        <article><span>07</span><h3>Multi-document pipelines</h3><p>Validate and execute dependency-aware document graphs with missing-node and cycle detection.</p></article>
+        <article><span>08</span><h3>Adapter conformance</h3><p>Check adapter contracts with reusable fixtures and optional native application runs.</p></article>
+        <article><span>09</span><h3>Signed evidence</h3><p>Optionally authenticate bundle manifests and execution receipts with local Ed25519 keys.</p></article>
+        <article><span>10</span><h3>GIMP 3 support</h3><p>Create and update XCF text and transforms through the Script-Fu batch adapter and inspect layers safely.</p></article>
+      </div>
     </section>
 
     <section class="builder" id="builder" aria-labelledby="builder-title">
