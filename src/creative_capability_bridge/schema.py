@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 PLAN_VERSION = 1
-ADAPTERS = ("blender", "inkscape")
+ADAPTERS = ("blender", "inkscape", "gimp")
 CAPABILITIES = ("text.create", "text.update", "transform.set")
 TARGET_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")
 HEX_COLOR_RE = re.compile(r"^#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?$")
@@ -24,6 +24,8 @@ class Operation:
     capability: str
     target: str
     parameters: dict[str, Any]
+    identifier: str | None = None
+    tags: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -33,6 +35,7 @@ class Plan:
     input_path: Path | None
     output_path: Path
     operations: tuple[Operation, ...]
+    coordinate_space: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -45,9 +48,12 @@ class Plan:
                     "capability": operation.capability,
                     "target": operation.target,
                     "parameters": operation.parameters,
+                    **({"id": operation.identifier} if operation.identifier else {}),
+                    **({"tags": list(operation.tags)} if operation.tags else {}),
                 }
                 for operation in self.operations
             ],
+            **({"coordinate_space": self.coordinate_space} if self.coordinate_space else {}),
         }
 
 
@@ -79,7 +85,7 @@ def parse_plan(payload: Any, *, base_dir: Path | None = None) -> Plan:
         raise PlanError("output must be a non-empty path string.")
     input_path = _resolve(root, input_value) if input_value else None
     output_path = _resolve(root, output_value)
-    expected_suffix = ".blend" if adapter == "blender" else ".svg"
+    expected_suffix = {"blender": ".blend", "inkscape": ".svg", "gimp": ".xcf"}[adapter]
     if output_path.suffix.lower() != expected_suffix:
         raise PlanError(f"{adapter} output must use the {expected_suffix} extension.")
     if input_path and input_path == output_path:
@@ -89,7 +95,11 @@ def parse_plan(payload: Any, *, base_dir: Path | None = None) -> Plan:
     if not isinstance(raw_operations, list) or not 1 <= len(raw_operations) <= 100:
         raise PlanError("operations must contain between 1 and 100 items.")
     operations = tuple(_parse_operation(item, adapter) for item in raw_operations)
-    return Plan(PLAN_VERSION, adapter, input_path, output_path, operations)
+    identifiers = [item.identifier for item in operations if item.identifier]
+    if len(identifiers) != len(set(identifiers)):
+        raise PlanError("Operation ids must be unique.")
+    coordinate_space = _parse_coordinate_space(payload.get("coordinate_space"))
+    return Plan(PLAN_VERSION, adapter, input_path, output_path, operations, coordinate_space)
 
 
 def _resolve(root: Path, value: str) -> Path:
@@ -111,8 +121,46 @@ def _parse_operation(payload: Any, adapter: str) -> Operation:
     parameters = payload.get("parameters", {})
     if not isinstance(parameters, dict):
         raise PlanError("Operation parameters must be an object.")
+    identifier = payload.get("id")
+    if identifier is not None and (
+        not isinstance(identifier, str) or not TARGET_RE.fullmatch(identifier)
+    ):
+        raise PlanError("Operation id must be a portable identifier of 1-64 characters.")
+    raw_tags = payload.get("tags", [])
+    if not isinstance(raw_tags, list) or len(raw_tags) > 20:
+        raise PlanError("Operation tags must be a list containing at most 20 items.")
+    if not all(isinstance(tag, str) and TARGET_RE.fullmatch(tag) for tag in raw_tags):
+        raise PlanError("Operation tags must use portable identifiers.")
     checked = _validate_parameters(capability, parameters, adapter)
-    return Operation(capability, target, checked)
+    return Operation(capability, target, checked, identifier, tuple(dict.fromkeys(raw_tags)))
+
+
+def _parse_coordinate_space(payload: Any) -> dict[str, Any] | None:
+    if payload is None:
+        return None
+    if not isinstance(payload, dict):
+        raise PlanError("coordinate_space must be an object.")
+    allowed = {"unit", "origin", "y_axis", "dpi", "width", "height"}
+    unknown = sorted(set(payload) - allowed)
+    if unknown:
+        raise PlanError(f"Unknown coordinate_space fields: {', '.join(unknown)}.")
+    unit = payload.get("unit", "px")
+    origin = payload.get("origin", "top-left")
+    y_axis = payload.get("y_axis", "down")
+    if unit not in {"px", "pt", "mm", "cm", "in", "blender-unit"}:
+        raise PlanError("coordinate_space unit is not supported.")
+    if origin not in {"top-left", "bottom-left", "center"}:
+        raise PlanError("coordinate_space origin is not supported.")
+    if y_axis not in {"up", "down"}:
+        raise PlanError("coordinate_space y_axis must be up or down.")
+    checked: dict[str, Any] = {"unit": unit, "origin": origin, "y_axis": y_axis}
+    checked["dpi"] = _positive_number(payload.get("dpi", 96), "dpi")
+    for key in ("width", "height"):
+        if key in payload:
+            checked[key] = _positive_number(payload[key], key)
+    if origin != "top-left" and not all(key in checked for key in ("width", "height")):
+        raise PlanError("coordinate_space width and height are required for this origin.")
+    return checked
 
 
 def _validate_parameters(capability: str, params: dict[str, Any], adapter: str) -> dict[str, Any]:
@@ -147,8 +195,8 @@ def _validate_parameters(capability: str, params: dict[str, Any], adapter: str) 
     for key in ("scale_x", "scale_y", "scale_z"):
         if key in checked:
             checked[key] = _positive_number(checked[key], key)
-    if adapter == "inkscape" and any(key in checked for key in ("z", "scale_z")):
-        raise PlanError("Inkscape is two-dimensional and does not support z or scale_z.")
+    if adapter in {"inkscape", "gimp"} and any(key in checked for key in ("z", "scale_z")):
+        raise PlanError(f"{adapter.title()} is two-dimensional and does not support z or scale_z.")
     return checked
 
 

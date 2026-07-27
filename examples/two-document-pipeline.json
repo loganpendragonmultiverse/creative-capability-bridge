@@ -1,0 +1,16 @@
+{
+  "pipeline_version": 1,
+  "name": "SVG and GIMP title outputs",
+  "steps": [
+    {
+      "id": "svg-title",
+      "plan": "inkscape-text.json",
+      "depends_on": []
+    },
+    {
+      "id": "gimp-title",
+      "plan": "gimp-text.json",
+      "depends_on": ["svg-title"]
+    }
+  ]
+}

@@ -11,6 +11,7 @@ from typing import Any
 
 from . import __version__
 from .schema import Plan, PlanError
+from .signing import sign_payload, verify_payload_signature
 
 
 def file_hash(path: Path | None) -> str | None:
@@ -89,8 +90,29 @@ def compare_receipts(left_path: Path, right_path: Path) -> dict[str, Any]:
     }
 
 
-def verify_receipt(path: Path) -> dict[str, Any]:
+def sign_receipt(path: Path, destination: Path, private_key: Path) -> Path:
     receipt = _load(path)
+    if "signature" in receipt:
+        raise PlanError("Receipt is already signed.")
+    receipt["signature"] = sign_payload(receipt, private_key)
+    return write_receipt(destination, receipt)
+
+
+def verify_receipt(
+    path: Path, *, public_key: Path | None = None, require_signature: bool = False
+) -> dict[str, Any]:
+    receipt = _load(path)
+    signature = receipt.get("signature")
+    unsigned = dict(receipt)
+    unsigned.pop("signature", None)
+    if public_key:
+        signature_report = verify_payload_signature(unsigned, signature, public_key)
+    else:
+        signature_report = {
+            "present": signature is not None,
+            "verified": None,
+            "reason": "no public key supplied" if signature is not None else None,
+        }
     checks: dict[str, Any] = {}
     for label in ("input", "output"):
         recorded = receipt.get(label)
@@ -108,7 +130,14 @@ def verify_receipt(path: Path) -> dict[str, Any]:
             "matches": current is not None and current == recorded.get("sha256"),
         }
     verified = all(item is None or item["matches"] for item in checks.values())
-    return {"receipt": str(path.resolve()), "verified": verified, "files": checks}
+    if require_signature:
+        verified = verified and signature_report.get("verified") is True
+    return {
+        "receipt": str(path.resolve()),
+        "verified": verified,
+        "files": checks,
+        "signature": signature_report,
+    }
 
 
 def _load(path: Path) -> dict[str, Any]:

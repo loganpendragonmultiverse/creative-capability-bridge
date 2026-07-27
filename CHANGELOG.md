@@ -2,6 +2,26 @@
 
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning.
 
+## [1.3.0] - 2026-07-26
+
+### Added
+
+- Semantic before/after document comparison for object additions, removals, and changed properties.
+- Transactional execution through inspected temporary outputs, atomic destination placement, and retained rollback backups when replacing an existing output.
+- Stable operation IDs and tags, selective `--only`, `--skip`, and `--from` execution, hash-bound checkpoint state, and safe resume.
+- Reusable adapter conformance checks with optional native fixture execution.
+- Coordinate normalization for pixels, points, physical units, Blender units, origins, Y-axis direction, and rotation direction.
+- GIMP 3 Script-Fu adapter for XCF text and transform operations plus read-only layer inspection.
+- Versioned policy profiles for adapter, capability, path, size, receipt, inspection, replacement, and signed-bundle controls.
+- Versioned dependency-aware multi-document pipelines with cycle and missing-dependency rejection.
+- Optional Ed25519 key generation and signatures for bundle manifests and execution receipts.
+
+### Changed
+
+- Execution now uses a transaction boundary by default while retaining version 1 plan compatibility.
+- Capability negotiation, inspection, diagnostics, and documentation now include GIMP 3.
+- The Python package now depends on `cryptography` for optional asymmetric signatures.
+
 ## [1.2.0] - 2026-07-26
 
 ### Added
@@ -40,6 +60,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - Local browser plan builder with downloadable plans and a public research roadmap.
 - Cross-platform core CI, native Ubuntu adapter smoke tests, CodeQL, dependency audits, release builds, and project-specific documentation.
 
+[1.3.0]: https://github.com/loganpendragonmultiverse/creative-capability-bridge/releases/tag/v1.3.0
 [1.2.0]: https://github.com/loganpendragonmultiverse/creative-capability-bridge/releases/tag/v1.2.0
 [1.1.0]: https://github.com/loganpendragonmultiverse/creative-capability-bridge/releases/tag/v1.1.0
 [1.0.0]: https://github.com/loganpendragonmultiverse/creative-capability-bridge/releases/tag/v1.0.0
