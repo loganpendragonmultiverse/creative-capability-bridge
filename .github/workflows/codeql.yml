@@ -2,6 +2,7 @@ name: CodeQL
 on:
   push: { branches: [main] }
   pull_request: { branches: [main] }
+  workflow_dispatch:
   schedule:
     - cron: "17 5 * * 1"
 permissions:
@@ -15,4 +16,3 @@ jobs:
       - uses: github/codeql-action/init@v4
         with: { languages: "python,javascript-typescript" }
       - uses: github/codeql-action/analyze@v4
-
