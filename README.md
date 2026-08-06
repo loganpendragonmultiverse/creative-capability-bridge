@@ -6,7 +6,7 @@
 
 Creative Capability Bridge (CCB) is a versioned protocol, adapter toolkit, and reference plan builder for expressing common creative operations once and translating them for different applications.
 
-Version 1.3 supports text creation, text updates, and explicit transforms through Blender, Inkscape, and GIMP 3 adapters. It adds transactional execution, rollback backups, resumable and selective plans, semantic document diffs, coordinate normalization, policy profiles, dependency-aware multi-document pipelines, adapter conformance checks, and optional Ed25519 signatures for bundles and receipts.
+Version 1.3 supports text creation, text updates, and explicit transforms through Blender, Inkscape, and GIMP 3 adapters. It adds transactional execution, rollback backups, resumable and selective plans, semantic document diffs, coordinate normalization, policy profiles, dependency-aware multi-document pipelines, adapter conformance checks, and optional Ed25519 signatures for bundles and receipts. Version 1.3.1 updates the signing dependency to the patched `cryptography` 50.x release line.
 
 **[Open the plan builder](https://loganpendragonmultiverse.github.io/creative-capability-bridge/)**
 
@@ -232,7 +232,7 @@ CCB runs locally on Windows, macOS, and Linux wherever Python and the selected a
 
 Contributions are welcome through reviewed pull requests. Start with [CONTRIBUTING.md](CONTRIBUTING.md), the [development guide](DEVELOPMENT.md), and the adapter contract. Compatibility reports should include the operating system, application version, plan, expected semantic result, and actual result using synthetic fixtures where possible.
 
-Version 1.3.0 is feature-complete for its documented scope. Maintenance prioritizes transaction safety, compatibility evidence, explicit policy, and backward-compatible protocol changes over rapidly adding application-specific commands.
+Version 1.3.1 is feature-complete for its documented scope. Maintenance prioritizes transaction safety, compatibility evidence, explicit policy, and backward-compatible protocol changes over rapidly adding application-specific commands.
 
 ## License
 
