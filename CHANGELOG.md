@@ -2,6 +2,14 @@
 
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning.
 
+## [1.3.1] - 2026-08-06
+
+### Security
+
+- Updated the runtime dependency to `cryptography` 50.x, the first release line patched for
+  CVE-2026-69247. Creative Capability Bridge uses Ed25519 signing rather than the affected PKCS#7
+  decryption APIs, but no longer permits installation with the vulnerable 48.x release line.
+
 ## [1.3.0] - 2026-07-26
 
 ### Added
