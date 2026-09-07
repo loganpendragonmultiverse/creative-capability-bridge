@@ -21,7 +21,8 @@ def manifest(adapter: str) -> dict[str, Any]:
         common["application"] = "Blender"
         common["transport"] = "background Python script"
         common["tested_versions"] = ["Blender 3.4", "Blender 4.x"]
-        common["operations"]["text.create"] += ["x", "y", "z"]
+        common["operations"]["text.create"] += ["x", "y", "z", "font_file"]
+        common["operations"]["text.update"] += ["font_file"]
         common["operations"]["transform.set"] += ["z", "scale_z"]
     elif adapter == "inkscape":
         common["application"] = "Inkscape"

@@ -169,6 +169,8 @@ def _validate_parameters(capability: str, params: dict[str, Any], adapter: str) 
         "text.update": {"content", "font_family", "font_size", "alignment", "fill"},
         "transform.set": {"x", "y", "z", "rotation_degrees", "scale_x", "scale_y", "scale_z"},
     }[capability]
+    if adapter == "blender" and capability in {"text.create", "text.update"}:
+        allowed = allowed | {"font_file"}
     unknown = sorted(set(params) - allowed)
     if unknown:
         raise PlanError(f"Unknown {capability} parameters: {', '.join(unknown)}.")
@@ -181,6 +183,10 @@ def _validate_parameters(capability: str, params: dict[str, Any], adapter: str) 
             raise PlanError("content must be a string between 1 and 10,000 characters.")
     if "font_family" in checked and not isinstance(checked["font_family"], str):
         raise PlanError("font_family must be a string.")
+    if "font_file" in checked and (
+        not isinstance(checked["font_file"], str) or not Path(checked["font_file"]).is_absolute()
+    ):
+        raise PlanError("font_file must be an absolute local file path.")
     if "font_size" in checked:
         checked["font_size"] = _positive_number(checked["font_size"], "font_size")
     if "alignment" in checked and checked["alignment"] not in {"left", "center", "right"}:

@@ -170,6 +170,7 @@ for obj in bpy.data.objects:
             "text": obj.data.body,
             "font_family": obj.get("ccb_font_family_requested") or getattr(obj.data.font, "name", None),
             "font_size": obj.data.size,
+            "font_file": getattr(obj.data.font, "filepath", None),
         })
     items.append(item)
 with open(sys.argv[sys.argv.index("--") + 1], "w", encoding="utf-8") as handle:

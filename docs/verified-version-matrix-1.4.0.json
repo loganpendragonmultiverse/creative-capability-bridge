@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "applications": [
+    {
+      "adapter": "blender",
+      "pivot": "Object origin; Z-axis rotation; native object coordinates",
+      "application_version": "Blender 4.0.2",
+      "native_verified": true,
+      "contract": {
+        "adapter": "blender",
+        "native_requested": true,
+        "passed": true,
+        "checks": [
+          {
+            "name": "manifest_fields",
+            "passed": true,
+            "detail": [
+              "adapter",
+              "application",
+              "guarantees",
+              "operations",
+              "protocol_version"
+            ]
+          },
+          {
+            "name": "protocol_version",
+            "passed": true,
+            "detail": 1
+          },
+          {
+            "name": "operations_declared",
+            "passed": true,
+            "detail": [
+              "text.create",
+              "text.update",
+              "transform.set"
+            ]
+          },
+          {
+            "name": "preview_contract",
+            "passed": true,
+            "detail": {
+              "adapter": "blender",
+              "available": true,
+              "command": [
+                "/usr/bin/blender",
+                "--background",
+                "--factory-startup",
+                "--python-exit-code",
+                "1",
+                "--python",
+                "<temporary-script.py>",
+                "--",
+                "/home/runner/work/creative-capability-bridge/creative-capability-bridge/conformance.blend"
+              ],
+              "output": "/home/runner/work/creative-capability-bridge/creative-capability-bridge/conformance.blend",
+              "source_preserved": true,
+              "operation_count": 1
+            }
+          },
+          {
+            "name": "native_fixture",
+            "passed": true,
+            "detail": {
+              "passed": true,
+              "output_created": true,
+              "target_found": true
+            }
+          }
+        ],
+        "native": {
+          "passed": true,
+          "output_created": true,
+          "target_found": true
+        }
+      },
+      "status": "native-smoke-verified",
+      "transform_roundtrip": {
+        "passed": true,
+        "cases": [
+          {
+            "case": "identity",
+            "passed": true,
+            "source_sha256": "96606e8ee3b74cbb6f3c0d936dc7ce5409d20659a8a4e9ee8563e0c3788b4b27"
+          },
+          {
+            "case": "translated",
+            "passed": true,
+            "source_sha256": "0b41942a77f8f04f64a573e76a63142f8d7498c0da967fb0991e387812864801"
+          },
+          {
+            "case": "rotated",
+            "passed": true,
+            "source_sha256": "4e2ca88860932f891759c22bc5a91739f56ea61d259faf5f7257c2f1eb41cede"
+          },
+          {
+            "case": "scaled",
+            "passed": true,
+            "source_sha256": "d3bfe7f50ae1ede1231675df63d72ba66f3e7a4c6730c2630cb7fa527c8e2ee7"
+          }
+        ]
+      }
+    },
+    {
+      "adapter": "inkscape",
+      "pivot": "SVG local origin; translate, then rotate, then scale attribute order",
+      "application_version": "Inkscape 1.2.2 (b0a8486541, 2022-12-01)",
+      "native_verified": true,
+      "contract": {
+        "adapter": "inkscape",
+        "native_requested": true,
+        "passed": true,
+        "checks": [
+          {
+            "name": "manifest_fields",
+            "passed": true,
+            "detail": [
+              "adapter",
+              "application",
+              "guarantees",
+              "operations",
+              "protocol_version"
+            ]
+          },
+          {
+            "name": "protocol_version",
+            "passed": true,
+            "detail": 1
+          },
+          {
+            "name": "operations_declared",
+            "passed": true,
+            "detail": [
+              "text.create",
+              "text.update",
+              "transform.set"
+            ]
+          },
+          {
+            "name": "preview_contract",
+            "passed": true,
+            "detail": {
+              "adapter": "inkscape",
+              "available": true,
+              "transport": "SVG document adapter",
+              "native_preview_available": true,
+              "output": "/home/runner/work/creative-capability-bridge/creative-capability-bridge/conformance.svg",
+              "source_preserved": true,
+              "operation_count": 1
+            }
+          },
+          {
+            "name": "native_fixture",
+            "passed": true,
+            "detail": {
+              "passed": true,
+              "output_created": true,
+              "target_found": true
+            }
+          }
+        ],
+        "native": {
+          "passed": true,
+          "output_created": true,
+          "target_found": true
+        }
+      },
+      "status": "native-smoke-verified",
+      "transform_roundtrip": "not verified",
+      "svg_roundtrip": {
+        "passed": true,
+        "cases": [
+          {
+            "case": "identity",
+            "passed": true,
+            "transform": "translate(0 0) rotate(0) scale(1 1)",
+            "source_sha256": "28659a8c15a8fe7da95daa0d6c4c96f8c281ce253ac15ab5eb4b24161afa6d82"
+          },
+          {
+            "case": "translated",
+            "passed": true,
+            "transform": "translate(12 15) rotate(0) scale(1 1)",
+            "source_sha256": "cab8bd18e40403ad8258ce9383a2b6faaaa76640d6fe63ff7c555c8b5c959bfa"
+          },
+          {
+            "case": "rotated",
+            "passed": true,
+            "transform": "translate(0 0) rotate(30) scale(1 1)",
+            "source_sha256": "746258591a8fbb8ef6aa838ba7a855b9fdcaf6ea861f2e5bc82080c70981fb01"
+          },
+          {
+            "case": "scaled",
+            "passed": true,
+            "transform": "translate(0 0) rotate(0) scale(1.5 0.75)",
+            "source_sha256": "963094a9397114af1c6f237360b32086f50f353004214cb6231e89175787c1be"
+          }
+        ]
+      }
+    },
+    {
+      "adapter": "gimp",
+      "pivot": "Layer center for rotation; layer-offset coordinates; raster transforms may be lossy",
+      "application_version": null,
+      "native_verified": false,
+      "status": "unavailable-or-failed",
+      "error": "Gimp executable is unavailable for native conformance."
+    }
+  ],
+  "boundary": "Native smoke verifies creation/inspection only. SVG round-trip evidence is a document-adapter test, not native application rendering. Blender transform round-trips are reported when native checks run; GIMP still requires semantic acceptance.",
+  "evidence": {
+    "source_commit": "f9396f442fe7f95c729d656c9c967e7130a38f82",
+    "workflow": "https://github.com/loganpendragonmultiverse/creative-capability-bridge/actions/runs/34164755956",
+    "date": "2026-09-07"
+  }
+}
