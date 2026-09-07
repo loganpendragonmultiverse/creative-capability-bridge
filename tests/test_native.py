@@ -56,3 +56,38 @@ def test_inkscape_native_preview_smoke(tmp_path: Path) -> None:
     preview = tmp_path / "native.png"
     InkscapeAdapter().execute(plan, render_preview=preview)
     assert preview.stat().st_size > 0
+
+
+@pytest.mark.skipif(
+    not REQUIRE_NATIVE and not shutil.which("blender"), reason="Blender is not installed"
+)
+def test_blender_native_transform_roundtrip_and_font(tmp_path: Path) -> None:
+    from creative_capability_bridge.conformance_matrix import blender_roundtrip
+    from creative_capability_bridge.execution import execute_transactionally
+
+    assert blender_roundtrip()["passed"]
+    font = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
+    if not font.exists():
+        if REQUIRE_NATIVE:
+            pytest.fail("Native font fixture is missing")
+        pytest.skip("Native font fixture not available")
+    payload = {
+        "version": 1,
+        "adapter": "blender",
+        "input": None,
+        "output": str(tmp_path / "font.blend"),
+        "operations": [
+            {
+                "capability": "text.create",
+                "target": "title",
+                "parameters": {
+                    "content": "Mapped font",
+                    "font_family": "DejaVu Sans",
+                    "font_file": str(font),
+                },
+            }
+        ],
+    }
+    result = execute_transactionally(parse_plan(payload), BlenderAdapter())
+    obj = next(item for item in result.inspection["objects"] if item["id"] == "title")
+    assert Path(obj["font_file"]).resolve() == font.resolve()

@@ -19,6 +19,7 @@ jobs:
         with: { python-version: "${{ matrix.python }}", cache: pip }
       - uses: actions/setup-node@v7
         with: { node-version: 24 }
+      - run: python -m pip install --upgrade "pip>=26.2"
       - run: python -m pip install -e ".[dev]"
       - run: ruff format --check .
       - run: ruff check .
@@ -34,15 +35,22 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with: { python-version: "3.12", cache: pip }
-      - run: sudo apt-get update && sudo apt-get install -y blender inkscape
+      - run: sudo apt-get update && sudo apt-get install -y blender inkscape fonts-dejavu-core
+      - run: python -m pip install --upgrade "pip>=26.2"
       - run: python -m pip install -e ".[dev]"
       - run: CCB_REQUIRE_NATIVE=1 pytest tests/test_native.py --no-cov
+      - run: python -c "import json; from creative_capability_bridge.conformance_matrix import run_matrix; open('verified-version-matrix.json','w').write(json.dumps(run_matrix(native=True),indent=2))"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: verified-version-matrix
+          path: verified-version-matrix.json
   dependency-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with: { python-version: "3.12", cache: pip }
+      - run: python -m pip install --upgrade "pip>=26.2"
       - run: python -m pip install -e ".[dev]"
       - run: python -m pip_audit
 

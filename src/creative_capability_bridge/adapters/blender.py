@@ -82,6 +82,15 @@ class BlenderAdapter:
 
 
 def _guard_paths(plan: Plan, replace: bool) -> None:
+    for operation in plan.operations:
+        if "font_file" in operation.parameters:
+            font = Path(operation.parameters["font_file"])
+            if (
+                not font.is_file()
+                or font.suffix.lower() not in {".ttf", ".otf"}
+                or font.stat().st_size > 20 * 1024 * 1024
+            ):
+                raise PlanError("Mapped font file is missing or invalid.")
     if plan.input_path and not plan.input_path.is_file():
         raise PlanError(f"Input file does not exist: {plan.input_path}")
     if plan.output_path.exists() and not replace:
@@ -118,6 +127,8 @@ def apply_text(obj, params):
         obj.data.align_x = {"left": "LEFT", "center": "CENTER", "right": "RIGHT"}[params["alignment"]]
     if "font_family" in params:
         obj["ccb_font_family_requested"] = params["font_family"]
+    if "font_file" in params:
+        obj.data.font = bpy.data.fonts.load(params["font_file"], check_existing=True)
     if "fill" in params:
         material = obj.data.materials[0] if obj.data.materials else bpy.data.materials.new(obj.name + " Material")
         material.diffuse_color = rgba(params["fill"])
