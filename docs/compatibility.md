@@ -18,3 +18,7 @@ Application releases can alter command-line flags, object semantics, font resolu
 ## Measured conformance matrix
 
 CI uploads `verified-version-matrix` after its required native tests. It contains exact observed versions and individual results. `ccb conformance-matrix --native` regenerates the report for another installation. Contract-only and unavailable rows are not verified native compatibility. Blender transform tests inspect location, rotation, scale and preservation after a second saved document; SVG tests preserve the transform attribute through a text update. GIMP fixture plans document layer-center rotation and potential raster loss; no geometric equivalence to vector/object transforms is claimed.
+
+## Measured 1.4.0 candidate results
+
+[Exact CI evidence](verified-version-matrix-1.4.0.json) records Blender 4.0.2 native creation/inspection, four transform round trips and the separate CI font-loading test; Inkscape 1.2.2 native smoke and four SVG document round trips passed. GIMP native semantic acceptance was unavailable. These are tested versions, not a claim about every release in a major version family.
