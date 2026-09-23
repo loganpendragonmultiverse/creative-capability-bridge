@@ -14,3 +14,11 @@ The GIMP adapter targets GIMP 3.0 and newer through the documented Script-Fu bat
 Application releases can alter command-line flags, object semantics, font resolution, or file behavior. Compatibility reports must include exact versions and a minimal synthetic plan. A release claim is updated only after repeatable evidence.
 
 `ccb compatibility` reports protocol-level support before a native application is launched. `exact` means every supplied field has a direct adapter representation; `approximate` names any semantic caveat; `unsupported` includes the validation reason. This report is not a claim that the native executable is installed—use `ccb doctor` for availability, `ccb conformance ADAPTER --native` for a fixture, and an execution receipt for the observed version.
+
+## Measured conformance matrix
+
+CI uploads `verified-version-matrix` after its required native tests. It contains exact observed versions and individual results. `ccb conformance-matrix --native` regenerates the report for another installation. Contract-only and unavailable rows are not verified native compatibility. Blender transform tests inspect location, rotation, scale and preservation after a second saved document; SVG tests preserve the transform attribute through a text update. GIMP fixture plans document layer-center rotation and potential raster loss; no geometric equivalence to vector/object transforms is claimed.
+
+## Measured 1.4.0 candidate results
+
+[Exact CI evidence](verified-version-matrix-1.4.0.json) records Blender 4.0.2 native creation/inspection, four transform round trips and the separate CI font-loading test; Inkscape 1.2.2 native smoke and four SVG document round trips passed. GIMP native semantic acceptance was unavailable. These are tested versions, not a claim about every release in a major version family.

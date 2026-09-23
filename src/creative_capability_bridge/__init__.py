@@ -3,4 +3,4 @@
 from .schema import Plan, PlanError, load_plan
 
 __all__ = ["Plan", "PlanError", "load_plan"]
-__version__ = "1.3.1"
+__version__ = "1.4.0"

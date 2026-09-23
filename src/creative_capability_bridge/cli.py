@@ -16,10 +16,12 @@ from .adapters import BlenderAdapter, GimpAdapter, InkscapeAdapter
 from .bundles import create_bundle, extract_bundle, verify_bundle
 from .capabilities import all_manifests, manifest
 from .conformance import run_conformance
+from .conformance_matrix import generate_fixtures, run_matrix
 from .coordinates import coordinate_report
 from .document_diff import compare_documents
 from .execution import ExecutableAdapter, execute_checkpointed, execute_transactionally
 from .explain import explain_plan
+from .fonts import map_fonts
 from .inspection import inspect_document
 from .linting import lint_plan
 from .negotiation import compatibility, retarget
@@ -159,6 +161,24 @@ def parser() -> argparse.ArgumentParser:
     execute.add_argument("--bundle", type=Path)
     execute.add_argument("--public-key", type=Path)
     subcommands.add_parser("doctor", help="Report native application availability.")
+    fonts = subcommands.add_parser(
+        "fonts", help="Resolve explicit portable family mappings and report availability."
+    )
+    fonts.add_argument("plan", type=Path)
+    fonts.add_argument("--map", dest="font_map", type=Path, required=True)
+    fonts.add_argument("--inventory", type=Path)
+    fonts.add_argument("--output", type=Path)
+    fixtures = subcommands.add_parser(
+        "conformance-fixtures", help="Write new transform/pivot/round-trip fixture plans."
+    )
+    fixtures.add_argument("directory", type=Path)
+    matrix = subcommands.add_parser(
+        "conformance-matrix", help="Run version-scoped conformance checks."
+    )
+    matrix.add_argument("--native", action="store_true")
+    matrix.add_argument("--output", type=Path)
+    for application in ADAPTERS:
+        matrix.add_argument("--" + application)
     return root
 
 
@@ -173,6 +193,33 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def _dispatch(args: argparse.Namespace) -> int:
+    if args.command == "fonts":
+        plan, report = map_fonts(load_plan(args.plan), args.font_map, args.inventory)
+        if args.output and not report["blocked"]:
+            if args.output.exists():
+                raise PlanError("Output already exists.")
+            with args.output.open("x", encoding="utf-8") as handle:
+                json.dump(plan.as_dict(), handle, indent=2)
+        _print(report)
+        return 1 if report["blocked"] else 0
+    if args.command == "conformance-fixtures":
+        _print(generate_fixtures(args.directory))
+        return 0
+    if args.command == "conformance-matrix":
+        report = run_matrix(
+            args.native, {name: getattr(args, name) for name in ADAPTERS if getattr(args, name)}
+        )
+        if args.output:
+            if args.output.exists():
+                raise PlanError("Output already exists.")
+            with args.output.open("x", encoding="utf-8") as handle:
+                json.dump(report, handle, indent=2)
+        _print(report)
+        return (
+            0
+            if all(row["status"] != "unavailable-or-failed" for row in report["applications"])
+            else 1
+        )
     if args.command == "capabilities":
         payload = manifest(args.adapter) if args.adapter else all_manifests()
         if args.json:
