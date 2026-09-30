@@ -34,6 +34,7 @@ from .receipts import (
     verify_receipt,
     write_receipt,
 )
+from .review_tools import compare_plans, preflight
 from .schema import ADAPTERS, Plan, PlanError, load_plan
 from .signing import generate_keypair, sign_payload
 
@@ -179,6 +180,22 @@ def parser() -> argparse.ArgumentParser:
     matrix.add_argument("--output", type=Path)
     for application in ADAPTERS:
         matrix.add_argument("--" + application)
+    pre = subcommands.add_parser(
+        "preflight", help="Read-only plan, file and policy readiness report."
+    )
+    pre.add_argument("plan", type=Path)
+    pre.add_argument("--policy", type=Path)
+    pre.add_argument("--replace", action="store_true")
+    pre.add_argument("--receipt", type=Path)
+    pre.add_argument("--inspect", action="store_true")
+    pre.add_argument("--executable")
+    pre.add_argument("--output", type=Path)
+    compare_plan = subcommands.add_parser(
+        "compare-plans", help="Compare operation and metadata changes without execution."
+    )
+    compare_plan.add_argument("before", type=Path)
+    compare_plan.add_argument("after", type=Path)
+    compare_plan.add_argument("--output", type=Path)
     return root
 
 
@@ -193,6 +210,30 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def _dispatch(args: argparse.Namespace) -> int:
+    if args.command in {"preflight", "compare-plans"}:
+        if args.command == "preflight":
+            report = preflight(
+                load_plan(args.plan),
+                policy_path=args.policy,
+                replace=args.replace,
+                receipt=args.receipt,
+                inspect=args.inspect,
+                executable=args.executable,
+            )
+            successful = report["ready"]
+        else:
+            report = compare_plans(load_plan(args.before), load_plan(args.after))
+            successful = report["equivalent"]
+        if args.output:
+            if args.output.exists():
+                raise PlanError("Output already exists.")
+            try:
+                with args.output.open("x", encoding="utf-8") as handle:
+                    json.dump(report, handle, indent=2)
+            except OSError as exc:
+                raise PlanError("Could not write the report.") from exc
+        _print(report)
+        return 0 if successful else 1
     if args.command == "fonts":
         plan, report = map_fonts(load_plan(args.plan), args.font_map, args.inventory)
         if args.output and not report["blocked"]:

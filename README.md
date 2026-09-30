@@ -6,7 +6,7 @@
 
 Creative Capability Bridge (CCB) is a versioned protocol, adapter toolkit, and reference plan builder for expressing common creative operations once and translating them for different applications.
 
-Version 1.3 supports text creation, text updates, and explicit transforms through Blender, Inkscape, and GIMP 3 adapters. It adds transactional execution, rollback backups, resumable and selective plans, semantic document diffs, coordinate normalization, policy profiles, dependency-aware multi-document pipelines, adapter conformance checks, and optional Ed25519 signatures for bundles and receipts. Version 1.3.1 updates the signing dependency to the patched `cryptography` 50.x release line.
+The current protocol supports text creation, text updates, and explicit transforms through Blender, Inkscape, and GIMP 3 adapters. It adds transactional execution, rollback backups, resumable and selective plans, semantic document diffs, coordinate normalization, policy profiles, dependency-aware multi-document pipelines, adapter conformance checks, and optional Ed25519 signatures for bundles and receipts. Version 1.3.1 updates the signing dependency to the patched `cryptography` 50.x release line.
 
 **[Open the plan builder](https://loganpendragonmultiverse.github.io/creative-capability-bridge/)**
 
@@ -26,6 +26,14 @@ reference interface or JSON authoring
 ```
 
 The protocol is the stable center. Applications remain installed separately, upstream code is not forked, and every output path is explicit.
+
+## Features
+
+- Add `ccb preflight` for input hashes, output/receipt collisions, font-file availability, target lifecycles, and optional policy or document inspection.
+- Add `ccb compare-plans` for metadata fields, added/removed/changed operation fields, and operation order without printing raw parameter values or file paths.
+- Add validated local JSON plan import and operation editing/reordering/removal to the reference builder.
+- Add target-order review and bounded session Undo/Redo; preserve coordinate metadata through builder edits.
+- Keep execution explicit and preserve existing inputs and outputs during review.
 
 ## Current capabilities
 
@@ -253,3 +261,17 @@ ccb fonts plan.json --map font-map.json --inventory installed-families.json --ou
 ccb conformance-fixtures new-fixtures
 ccb conformance-matrix --native --output new-version-matrix.json
 ```
+
+## Version 1.5.0: reviewed improvements
+
+Add read-only execution preflight and value-free semantic comparisons between two plans. The reference builder imports validated local JSON plans, retains coordinate metadata, reviews target order, edits/reorders/removes queued operations, and offers bounded session Undo/Redo. Existing output refusal, transactional execution, protocol version 1, and native adapter behavior are retained.
+
+```bash
+ccb preflight plan.json
+ccb preflight plan.json --inspect --policy policy.json --receipt new-receipt.json
+ccb compare-plans before.json after.json --output new-comparison.json
+```
+
+Preflight does not execute or reserve paths. Without `--inspect`, existing-document targets are not verified. Native inspection can launch the selected application in read-only mode. Signed-bundle requirements remain blocked in preflight; verify the bundle through the existing execution workflow. A blocked preflight or changed comparison exits 1; invalid input exits 2. Report destinations must be new files. Comparisons match explicit IDs, or position for operations without IDs; identifiers and field names still appear and should be reviewed before sharing.
+
+The builder imports a local plan up to 1 MiB, validates before replacing the queue, and keeps Undo/Redo in the current browser session only. Queue editing produces a JSON plan; it does not launch a creative application. Inspect the saved plan before execution.

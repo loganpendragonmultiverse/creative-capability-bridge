@@ -26,3 +26,7 @@ footer { display:flex; justify-content:space-between; gap:20px; padding:30px cla
 @media (max-width:900px) { .explainer,.roadmap { grid-template-columns:1fr; }.form-grid,.form-grid.compact { grid-template-columns:1fr 1fr; }.plan-panel { grid-template-columns:1fr; }.plan-panel>div+div { border-left:0; border-top:2px solid var(--line); } }
 @media (max-width:600px) { nav a:not(:last-child) { display:none; }.hero { min-height:auto; }.form-grid,.form-grid.compact,.capability-grid,.roadmap-grid { grid-template-columns:1fr; }.wide { grid-column:auto; }.explainer li { grid-template-columns:80px 1fr; }footer { flex-direction:column; } }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; }.button:hover { transform:none; } }
+
+/* Honor conditional controls even when component display rules apply. */
+[hidden] { display: none !important; }
+.operations button:disabled { opacity: .35; cursor: default; }
