@@ -13,3 +13,7 @@ ccb fonts plan.json --map font-map.json --inventory installed-families.json --ou
 ccb conformance-fixtures new-fixtures
 ccb conformance-matrix --native --output new-version-matrix.json
 ```
+
+## Version 1.5.0: plan review and queue editing
+
+Run all DEVELOPMENT.md gates. Regressions cover preserved inputs/outputs, replacement and receipt guards, missing parents/fonts, policy enforcement, optional SVG inspection, value-free changes/reordering, new-report refusal, validated imports, retained metadata, target-order review, and non-mutating queue edits. CI must still require native Blender/Inkscape conformance. GIMP native acceptance remains a separate operator check.

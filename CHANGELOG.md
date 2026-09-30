@@ -2,6 +2,14 @@
 
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning.
 
+## 1.5.0 - 2026-09-30
+
+- Add `ccb preflight` for input hashes, output/receipt collisions, font-file availability, target lifecycles, and optional policy or document inspection.
+- Add `ccb compare-plans` for metadata fields, added/removed/changed operation fields, and operation order without printing raw parameter values or file paths.
+- Add validated local JSON plan import and operation editing/reordering/removal to the reference builder.
+- Add target-order review and bounded session Undo/Redo; preserve coordinate metadata through builder edits.
+- Keep execution explicit and preserve existing inputs and outputs during review.
+
 ## [1.4.0] - 2026-09-22
 
 Add portable font mappings with missing-font diagnostics, transform/pivot fixture generation and version-scoped conformance evidence.
