@@ -242,6 +242,7 @@ def test_loaded_jobs_refuse_dangling_destination_symlinks(
         named.symlink_to(redirected)
     except OSError as exc:
         pytest.skip(f"Symlink creation unavailable: {exc}")
+    original_link = named.readlink()
 
     def unexpected_renderer(*args: Any, **kwargs: Any) -> None:
         pytest.fail("A refused destination must never launch the renderer.")
@@ -255,7 +256,7 @@ def test_loaded_jobs_refuse_dangling_destination_symlinks(
         export_preflight(job, "fake")
     assert main(["export", str(path), "--preflight", "--executable", "fake"]) == 2
     assert main(["export", str(path), "--executable", "fake"]) == 2
-    assert named.is_symlink() and named.readlink() == redirected
+    assert named.is_symlink() and named.readlink() == original_link
     assert not redirected.exists()
     other = tmp_path / payload["receipt" if destination == "output" else "output"]
     assert not other.exists() and not other.is_symlink()
