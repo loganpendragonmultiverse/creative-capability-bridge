@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.6.0 - Unreleased
+## 1.6.0 - 2026-10-15
 
 - Add a separate strict SVG-to-PNG export contract with read-only preflight, a restricted static SVG subset, bounded dimensions and source/output hash receipts.
 - Stage and structurally verify PNG output, refuse collisions atomically and preserve inputs; existing native document-plan protocol remains unchanged.

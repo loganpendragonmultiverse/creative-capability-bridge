@@ -277,6 +277,6 @@ Preflight does not execute or reserve paths. Without `--inspect`, existing-docum
 The builder imports a local plan up to 1 MiB, validates before replacing the queue, and keeps Undo/Redo in the current browser session only. Queue editing produces a JSON plan; it does not launch a creative application. Inspect the saved plan before execution.
 
 
-## PNG export (1.6.0 source candidate)
+## PNG export (1.6.0)
 
 A separate strict export job supports static SVG → PNG through Inkscape with read-only preflight, requested canvas dimensions, collision refusal and hash receipts. It rejects external resources, scripts, CSS and unsupported SVG constructs before native execution. See [the export contract](docs/export-contract.md) for the exact schema and limits. Existing document-plan protocol and native editable outputs remain unchanged.
