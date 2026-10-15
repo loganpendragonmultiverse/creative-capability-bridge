@@ -91,3 +91,41 @@ def test_blender_native_transform_roundtrip_and_font(tmp_path: Path) -> None:
     result = execute_transactionally(parse_plan(payload), BlenderAdapter())
     obj = next(item for item in result.inspection["objects"] if item["id"] == "title")
     assert Path(obj["font_file"]).resolve() == font.resolve()
+
+
+@pytest.mark.skipif(
+    not REQUIRE_NATIVE and not shutil.which("inkscape"), reason="Inkscape is not installed"
+)
+def test_native_svg_png_export_contract(tmp_path: Path) -> None:
+    import hashlib
+    import json
+
+    from creative_capability_bridge.exports import execute_export, load_export_job
+
+    source = tmp_path / "native-source.svg"
+    source.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32"><rect width="64" height="32" fill="#123456"/></svg>',
+        encoding="utf-8",
+    )
+    original = source.read_bytes()
+    job = tmp_path / "export.json"
+    job.write_text(
+        json.dumps(
+            {
+                "export_version": 1,
+                "format": "png",
+                "source": source.name,
+                "output": "native-export.png",
+                "receipt": "native-export.json",
+                "width": 64,
+                "height": 32,
+            }
+        ),
+        encoding="utf-8",
+    )
+    receipt = execute_export(load_export_job(job))
+    assert source.read_bytes() == original
+    assert (
+        receipt["output"]["sha256"]
+        == hashlib.sha256((tmp_path / "native-export.png").read_bytes()).hexdigest()
+    )

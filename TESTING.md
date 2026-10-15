@@ -17,3 +17,8 @@ ccb conformance-matrix --native --output new-version-matrix.json
 ## Version 1.5.0: plan review and queue editing
 
 Run all DEVELOPMENT.md gates. Regressions cover preserved inputs/outputs, replacement and receipt guards, missing parents/fonts, policy enforcement, optional SVG inspection, value-free changes/reordering, new-report refusal, validated imports, retained metadata, target-order review, and non-mutating queue edits. CI must still require native Blender/Inkscape conformance. GIMP native acceptance remains a separate operator check.
+
+
+## Static PNG export acceptance
+
+Run the new export regression suite and the existing full gates. Native CI must render the real static SVG fixture to the requested dimensions and verify its receipt. Unit fixtures cover strict job validation, declarations/resources/scripts/CSS rejection, UTF-8 and size limits, PNG structure/CRC/dimension checks, source drift, native failure/timeout, atomic output/receipt collision refusal and rollback. No pixel-fidelity or arbitrary SVG support claim is made.
