@@ -139,8 +139,11 @@ def load_export_job(path: Path) -> ExportJob:
         ):
             raise PlanError("Export paths must be non-empty text.")
         base = path.resolve().parent
-        source, output, receipt = (
-            (base / raw[k]).resolve() for k in ("source", "output", "receipt")
+        source = (base / raw["source"]).resolve()
+        # Keep destination names intact: resolving a final dangling symlink would
+        # hide the occupied name from preflight and redirect publication.
+        output, receipt = (
+            (base / raw[k]).parent.resolve() / (base / raw[k]).name for k in ("output", "receipt")
         )
         if len({source, output, receipt, path.resolve()}) != 4:
             raise PlanError("Source, output, receipt and job must be distinct paths.")

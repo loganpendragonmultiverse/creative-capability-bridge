@@ -229,3 +229,35 @@ def test_unavailable_native_and_missing_destination_parent(
     missing = ExportJob(job.source, tmp_path / "missing/out.png", job.receipt, 8, 8)
     with pytest.raises(PlanError):
         export_preflight(missing, "fake")
+
+
+@pytest.mark.parametrize("destination", ["output", "receipt"])
+def test_loaded_jobs_refuse_dangling_destination_symlinks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, destination: str
+) -> None:
+    path, payload = fixture(tmp_path)
+    named = tmp_path / payload[destination]
+    redirected = tmp_path / ("redirected" + named.suffix)
+    try:
+        named.symlink_to(redirected)
+    except OSError as exc:
+        pytest.skip(f"Symlink creation unavailable: {exc}")
+
+    def unexpected_renderer(*args: Any, **kwargs: Any) -> None:
+        pytest.fail("A refused destination must never launch the renderer.")
+
+    monkeypatch.setattr("creative_capability_bridge.exports.subprocess.run", unexpected_renderer)
+    original_source = (tmp_path / "in.svg").read_bytes()
+    original_job = path.read_bytes()
+    job = load_export_job(path)
+    assert getattr(job, destination) == named
+    with pytest.raises(PlanError, match="new destinations"):
+        export_preflight(job, "fake")
+    assert main(["export", str(path), "--preflight", "--executable", "fake"]) == 2
+    assert main(["export", str(path), "--executable", "fake"]) == 2
+    assert named.is_symlink() and named.readlink() == redirected
+    assert not redirected.exists()
+    other = tmp_path / payload["receipt" if destination == "output" else "output"]
+    assert not other.exists() and not other.is_symlink()
+    assert (tmp_path / "in.svg").read_bytes() == original_source
+    assert path.read_bytes() == original_job
