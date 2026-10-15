@@ -61,3 +61,8 @@ ccb conformance-matrix --native --output new-version-matrix.json
 ## Version 1.5.0: plan review and queue editing
 
 Add read-only execution preflight and value-free semantic comparisons between two plans. The reference builder imports validated local JSON plans, retains coordinate metadata, reviews target order, edits/reorders/removes queued operations, and offers bounded session Undo/Redo. Existing output refusal, transactional execution, protocol version 1, and native adapter behavior are retained.
+
+
+## 1.6.0 bounded export candidate
+
+Keep export-contract version 1 separate from document-plan version 1. Test strict fields, restricted SVG, safe destinations, renderer failures/timeouts, structural PNG checks, source drift, collision races and receipts. Require real Inkscape export in native CI before release; a mocked renderer does not establish visual fidelity.

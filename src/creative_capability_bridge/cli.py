@@ -21,6 +21,7 @@ from .coordinates import coordinate_report
 from .document_diff import compare_documents
 from .execution import ExecutableAdapter, execute_checkpointed, execute_transactionally
 from .explain import explain_plan
+from .exports import execute_export, export_preflight, load_export_job
 from .fonts import map_fonts
 from .inspection import inspect_document
 from .linting import lint_plan
@@ -196,6 +197,12 @@ def parser() -> argparse.ArgumentParser:
     compare_plan.add_argument("before", type=Path)
     compare_plan.add_argument("after", type=Path)
     compare_plan.add_argument("--output", type=Path)
+    export = subcommands.add_parser(
+        "export", help="Export a bounded static SVG to PNG using a separate export job."
+    )
+    export.add_argument("job", type=Path)
+    export.add_argument("--preflight", action="store_true")
+    export.add_argument("--executable")
     return root
 
 
@@ -210,6 +217,15 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def _dispatch(args: argparse.Namespace) -> int:
+    if args.command == "export":
+        job = load_export_job(args.job)
+        report = (
+            export_preflight(job, args.executable)
+            if args.preflight
+            else execute_export(job, args.executable)
+        )
+        _print(report)
+        return 0 if report.get("ready", True) else 1
     if args.command in {"preflight", "compare-plans"}:
         if args.command == "preflight":
             report = preflight(

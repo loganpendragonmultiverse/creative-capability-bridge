@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.0 - Unreleased
+
+- Add a separate strict SVG-to-PNG export contract with read-only preflight, a restricted static SVG subset, bounded dimensions and source/output hash receipts.
+- Stage and structurally verify PNG output, refuse collisions atomically and preserve inputs; existing native document-plan protocol remains unchanged.
+
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning.
 
 ## 1.5.0 - 2026-09-30
