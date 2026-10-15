@@ -109,7 +109,9 @@ def test_invalid_jobs(tmp_path: Path, changes: dict[str, Any]) -> None:
 
 
 @pytest.mark.parametrize(
-    "raw", ["[]", "{}", "not JSON", '{"format":"png","format":"pdf"}', " " * 64001]
+    "raw",
+    ["[]", "{}", "not JSON", '{"format":"png","format":"pdf"}', " " * 64001],
+    ids=["array", "empty-object", "invalid-json", "duplicate-key", "oversized-job"],
 )
 def test_malformed_jobs(tmp_path: Path, raw: str) -> None:
     path = tmp_path / "job.json"
