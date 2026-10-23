@@ -482,7 +482,10 @@ def test_xcf_inspection_through_mocked_native_process(tmp_path: Path) -> None:
     source.write_bytes(b"mock-xcf")
 
     def command_with_fixture(_self: object, script: Path) -> list[str]:
-        (script.parent / "layers.tsv").write_text("title\t100\t30\t12\t14\n", encoding="utf-8")
+        (script.parent / "layers.tsv").write_text(
+            "74 69 74 6c 65 \t100\t30\t12\t14\ttext\t43 61 66 e9 \t36 52 47 128 \n",
+            encoding="utf-8",
+        )
         return ["gimp"]
 
     with (
@@ -496,8 +499,10 @@ def test_xcf_inspection_through_mocked_native_process(tmp_path: Path) -> None:
     assert report["format"] == "xcf"
     assert report["objects"][0] == {
         "id": "title",
-        "type": "layer",
+        "type": "text",
         "modifiable": True,
+        "text": "Café",
+        "fill": "#24342F80",
         "width": 100,
         "height": 30,
         "x": 12,

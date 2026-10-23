@@ -105,16 +105,28 @@ def _inspect_xcf(path: Path, executable: str | None) -> dict[str, Any]:
         target = str(output).replace("\\", "/")
         script.write_text(
             f"""(script-fu-use-v3)
+(define (ccb-hex value port)
+  (for-each (lambda (ch) (display (number->string (char->integer ch) 16) port)
+                         (display " " port)) (string->list value)))
 (let* ((image (gimp-file-load RUN-NONINTERACTIVE {json.dumps(source)}))
        (port (open-output-file {json.dumps(target)})))
   (for-each
     (lambda (layer)
       (let* ((offsets (gimp-drawable-get-offsets layer)))
-        (display (gimp-item-get-name layer) port) (display "\\t" port)
+        (ccb-hex (gimp-item-get-name layer) port) (display "\\t" port)
         (display (gimp-drawable-get-width layer) port) (display "\\t" port)
         (display (gimp-drawable-get-height layer) port) (display "\\t" port)
-        (display (vector-ref offsets 0) port) (display "\\t" port)
-        (display (vector-ref offsets 1) port) (newline port)))
+        (display (car offsets) port) (display "\\t" port)
+        (display (cadr offsets) port) (display "\\t" port)
+        (display (if (gimp-item-id-is-text-layer layer) "text" "layer") port)
+        (display "\\t" port)
+        (if (gimp-item-id-is-text-layer layer)
+          (ccb-hex (gimp-text-layer-get-text layer) port))
+        (display "\\t" port)
+        (if (gimp-item-id-is-text-layer layer)
+          (for-each (lambda (component) (display component port) (display " " port))
+                    (gimp-text-layer-get-color layer)))
+        (newline port)))
     (vector->list (gimp-image-get-layers image)))
   (close-output-port port)
   (gimp-image-delete image))
@@ -134,13 +146,26 @@ def _inspect_xcf(path: Path, executable: str | None) -> dict[str, Any]:
         objects = []
         for line in output.read_text(encoding="utf-8").splitlines():
             fields = line.split("\t")
-            if len(fields) != 5:
-                continue
+            if len(fields) != 8:
+                raise PlanError("GIMP inspection returned a malformed layer record.")
+            try:
+                identifier = "".join(chr(int(value, 16)) for value in fields[0].split())
+                text = "".join(chr(int(value, 16)) for value in fields[6].split())
+                color = [int(value) for value in fields[7].split()]
+                if fields[5] == "text" and (
+                    len(color) != 4 or any(not 0 <= value <= 255 for value in color)
+                ):
+                    raise ValueError("Invalid RGBA components")
+                fill = "#" + "".join(f"{value:02X}" for value in color)
+            except (ValueError, OverflowError) as exc:
+                raise PlanError("GIMP inspection returned invalid text data.") from exc
             objects.append(
                 {
-                    "id": fields[0],
-                    "type": "layer",
-                    "modifiable": bool(fields[0]),
+                    "id": identifier,
+                    "type": fields[5],
+                    "modifiable": bool(identifier),
+                    "text": text if fields[5] == "text" else None,
+                    "fill": fill if fields[5] == "text" else None,
                     "width": int(fields[1]),
                     "height": int(fields[2]),
                     "x": int(fields[3]),

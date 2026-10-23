@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.1 — 2026-10-23
+
+- Correct GIMP batch termination, null save options and offset-list inspection; preserve omitted position axes.
+- Convert protocol hex colors to native RGBA components, retaining alpha through saved XCF inspection.
+- Resolve explicit GIMP font resources without silent fallback and use the context font by default.
+- Inspect saved XCF text and identifiers without tab/newline delimiter ambiguity.
+- Require a separate real GIMP saved-document acceptance gate, and separate exact measured versions from support targets.
+- Refresh supported-adapter, existing PNG-export and native-verification boundaries without adding new adapters.
+
 ## 1.6.0 - 2026-10-15
 
 - Add a separate strict SVG-to-PNG export contract with read-only preflight, a restricted static SVG subset, bounded dimensions and source/output hash receipts.

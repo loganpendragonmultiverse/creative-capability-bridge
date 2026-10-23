@@ -6,7 +6,7 @@
 
 Creative Capability Bridge (CCB) is a versioned protocol, adapter toolkit, and reference plan builder for expressing common creative operations once and translating them for different applications.
 
-The current protocol supports text creation, text updates, and explicit transforms through Blender, Inkscape, and GIMP 3 adapters. It adds transactional execution, rollback backups, resumable and selective plans, semantic document diffs, coordinate normalization, policy profiles, dependency-aware multi-document pipelines, adapter conformance checks, and optional Ed25519 signatures for bundles and receipts. Version 1.3.1 updates the signing dependency to the patched `cryptography` 50.x release line.
+The current protocol supports text creation, text updates, and explicit transforms through Blender, Inkscape, and GIMP 3 adapters. It adds transactional execution, rollback backups, resumable and selective plans, semantic document diffs, coordinate normalization, policy profiles, dependency-aware multi-document pipelines, adapter conformance checks, and optional Ed25519 signatures for bundles and receipts. Version 1.6.1 tightens supported-adapter evidence and GIMP saved-document acceptance. The separate PNG export contract added in 1.6.0 uses Inkscape; it does not add universal export support.
 
 **[Open the plan builder](https://loganpendragonmultiverse.github.io/creative-capability-bridge/)**
 
@@ -29,6 +29,9 @@ The protocol is the stable center. Applications remain installed separately, ups
 
 ## Features
 
+- Export restricted SVG to PNG through an installed Inkscape renderer, with explicit output and a structural receipt.
+- Separate exact measured application versions from target version ranges; see [compatibility evidence](docs/compatibility.md).
+
 - Add `ccb preflight` for input hashes, output/receipt collisions, font-file availability, target lifecycles, and optional policy or document inspection.
 - Add `ccb compare-plans` for metadata fields, added/removed/changed operation fields, and operation order without printing raw parameter values or file paths.
 - Add validated local JSON plan import and operation editing/reordering/removal to the reference builder.
@@ -41,13 +44,13 @@ The protocol is the stable center. Applications remain installed separately, ups
 |---|---:|---:|---:|
 | Create text | Yes | Yes | Yes |
 | Update bridge-managed or identified text | Yes | Yes | Yes |
-| Font family request | Recorded; native resolution is application-dependent | SVG `font-family` | GIMP font resource |
+| Font family request | Recorded; native resolution is application-dependent | SVG `font-family` | Exact installed GIMP font resource name |
 | Font size, alignment, fill | Yes | Yes | Yes |
 | Position and Z rotation | Yes | Yes | Yes |
 | X/Y scale | Yes | Yes | Yes |
 | Z position and scale | Yes | Not applicable | Not applicable |
 | Read-only structural inspection | Yes | Yes | Yes |
-| Native conformance fixture | Yes | Yes | Yes when GIMP is installed |
+| Native conformance fixture | Yes | Yes | Dedicated GIMP 3 saved-XCF gate; see measured evidence |
 
 Use `ccb capabilities --json` for the machine-readable manifests.
 
@@ -85,6 +88,14 @@ ccb conformance inkscape --native
 - Policy profiles constrain adapters, capabilities, output roots, operation counts, input size, replacement, inspection, receipts, and signed-bundle requirements.
 - Pipeline files order multiple plans through explicit `depends_on` relationships and reject missing or cyclic dependencies.
 - Bundles and receipts can be signed and verified with local Ed25519 key pairs. Private keys are never placed in bundles or receipts.
+
+GIMP text plans use the current GIMP context font when no font is specified. An explicit
+font_family must name an installed GIMP font resource exactly (for example,
+DejaVu Sans Book); missing resources fail rather than silently substituting a font.
+GIMP support is limited to identified top-level layers. Translation preserves omitted axes;
+scaling rounds dimensions to whole pixels and may rasterize text. Rotation uses the layer
+center and may lose raster detail. These are adapter-specific semantics, not interchangeable
+vector/object transforms. Native fixture success is not a guarantee for arbitrary XCF files.
 
 ## Three-minute start
 

@@ -1,0 +1,82 @@
+{
+  "application_version": "GNU Image Manipulation Program version 3.2.2",
+  "conformance": {
+    "adapter": "gimp",
+    "native_requested": true,
+    "passed": true,
+    "checks": [
+      {
+        "name": "manifest_fields",
+        "passed": true,
+        "detail": [
+          "adapter",
+          "application",
+          "guarantees",
+          "operations",
+          "protocol_version"
+        ]
+      },
+      {
+        "name": "protocol_version",
+        "passed": true,
+        "detail": 1
+      },
+      {
+        "name": "operations_declared",
+        "passed": true,
+        "detail": [
+          "text.create",
+          "text.update",
+          "transform.set"
+        ]
+      },
+      {
+        "name": "preview_contract",
+        "passed": true,
+        "detail": {
+          "adapter": "gimp",
+          "available": true,
+          "transport": "GIMP 3 Script-Fu batch interpreter",
+          "command": [
+            "/usr/bin/gimp-console",
+            "--no-interface",
+            "--new-instance",
+            "--quit",
+            "--no-data",
+            "--batch-interpreter=plug-in-script-fu-eval",
+            "--batch=(load \"<temporary-script.scm>\")"
+          ],
+          "output": "/work/conformance.xcf",
+          "source_preserved": true,
+          "operation_count": 1
+        }
+      },
+      {
+        "name": "native_fixture",
+        "passed": true,
+        "detail": {
+          "passed": true,
+          "text_and_offsets_verified": true,
+          "output_created": true,
+          "target_found": true
+        }
+      }
+    ],
+    "native": {
+      "passed": true,
+      "text_and_offsets_verified": true,
+      "output_created": true,
+      "target_found": true
+    }
+  },
+  "semantic_test_exit_code": 0,
+  "semantic_test_command": "CCB_REQUIRE_GIMP=1 pytest tests/test_gimp_native.py --no-cov",
+  "packages": [
+    "fonts-dejavu-core\t2.37-8build1",
+    "gimp\t3.2.2-1ubuntu0.26.04.1"
+  ],
+  "boundary": "Saved text/update, offsets, measured scale and guards only. No rotation, pixel fidelity or other-OS claim.",
+  "environment": "isolated nonroot Linux Ubuntu26.04 container",
+  "image_id": "sha256:1e646f824e030bd92a7579dc51fe905c0642745d866a5bfa436040c25716564c",
+  "native_and_conformance_receipt": "833d9b76893a45c7be8190db1ef3f861 terminal exit0"
+}

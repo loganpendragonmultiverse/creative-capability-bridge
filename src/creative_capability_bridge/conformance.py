@@ -118,8 +118,24 @@ def _native_fixture(adapter_name: str, adapter: PreviewAdapter) -> dict[str, Any
         )
         result = execute_transactionally(plan, adapter)
         targets = {item.get("id") for item in result.inspection["objects"]}
+        semantic_passed = True
+        if adapter_name == "gimp":
+            item: dict[str, Any] = next(
+                (
+                    item
+                    for item in result.inspection["objects"]
+                    if item.get("id") == "conformance-title"
+                ),
+                {},
+            )
+            semantic_passed = (
+                item.get("text") == "CCB conformance"
+                and item.get("x") == 10
+                and item.get("y") == 20
+            )
         return {
-            "passed": output.is_file() and "conformance-title" in targets,
+            "passed": output.is_file() and "conformance-title" in targets and semantic_passed,
+            "text_and_offsets_verified": semantic_passed if adapter_name == "gimp" else None,
             "output_created": output.is_file(),
             "target_found": "conformance-title" in targets,
         }

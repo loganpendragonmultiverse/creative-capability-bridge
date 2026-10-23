@@ -54,3 +54,23 @@ jobs:
       - run: python -m pip install -e ".[dev]"
       - run: python -m pip_audit
 
+
+  gimp-native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build isolated real GIMP 3 environment
+        run: docker build --tag ccb-gimp-native -f tools/native-gimp.Dockerfile tools
+      - name: Require saved-XCF semantic acceptance
+        run: |
+          docker image inspect ccb-gimp-native --format '{{.Id}}' > verified-gimp-image.txt
+          docker run --rm --cpus=2 --memory=4g --pids-limit=256 --cap-drop=ALL --security-opt=no-new-privileges \
+            --user "$(id -u):$(id -g)" --env HOME=/tmp --env LC_ALL=C.UTF-8 --env CCB_REQUIRE_GIMP=1 \
+            --mount "type=bind,src=$PWD,dst=/work" --workdir /work ccb-gimp-native sh -lc \
+            'set -e; python3 -m venv /tmp/ccb-venv; /tmp/ccb-venv/bin/python -m pip install -e ".[dev]"; /tmp/ccb-venv/bin/python tools/verify_gimp_native.py'
+      - uses: actions/upload-artifact@v7
+        with:
+          name: verified-gimp-native
+          path: |
+            verified-gimp-native.json
+            verified-gimp-image.txt

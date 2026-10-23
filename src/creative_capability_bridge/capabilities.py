@@ -16,23 +16,28 @@ def manifest(adapter: str) -> dict[str, Any]:
         },
         "guarantees": ["source-preserved", "explicit-output", "structured-errors"],
         "tested_versions": [],
+        "target_versions": [],
+        "evidence": "docs/compatibility.md; availability is not native verification",
     }
     if adapter == "blender":
         common["application"] = "Blender"
         common["transport"] = "background Python script"
-        common["tested_versions"] = ["Blender 3.4", "Blender 4.x"]
+        common["tested_versions"] = ["Blender 4.0.2"]
+        common["target_versions"] = ["Blender 3.4", "Blender 4.x"]
         common["operations"]["text.create"] += ["x", "y", "z", "font_file"]
         common["operations"]["text.update"] += ["font_file"]
         common["operations"]["transform.set"] += ["z", "scale_z"]
     elif adapter == "inkscape":
         common["application"] = "Inkscape"
         common["transport"] = "SVG document adapter with optional Inkscape CLI preview"
-        common["tested_versions"] = ["Inkscape 1.2+"]
+        common["tested_versions"] = ["Inkscape 1.2.2"]
+        common["target_versions"] = ["Inkscape 1.2+"]
         common["operations"]["text.create"] += ["x", "y"]
     elif adapter == "gimp":
         common["application"] = "GIMP"
         common["transport"] = "GIMP 3 Script-Fu batch interpreter"
-        common["tested_versions"] = ["GIMP 3.0+"]
+        common["target_versions"] = ["GIMP 3.0+"]
+        common["tested_versions"] = ["GIMP 3.2.2"]
         common["operations"]["text.create"] += ["x", "y"]
         common["guarantees"].append("transaction-ready")
     else:

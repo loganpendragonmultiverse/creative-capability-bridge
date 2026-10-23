@@ -14,12 +14,14 @@
   "operations": [
     {
       "id": "create-title",
-      "tags": ["titles", "first-pass"],
+      "tags": [
+        "titles",
+        "first-pass"
+      ],
       "capability": "text.create",
       "target": "title",
       "parameters": {
         "content": "Portable creative work",
-        "font_family": "Sans-serif",
         "font_size": 64,
         "alignment": "center",
         "fill": "#24342FFF",

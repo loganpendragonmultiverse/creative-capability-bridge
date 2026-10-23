@@ -10,3 +10,7 @@ recursive-include examples *.json
 recursive-include scripts *.mjs
 recursive-include site *.html *.css *.js
 recursive-include tests *.py *.mjs
+
+include TESTING.md
+recursive-include docs *.json
+recursive-include tools *.py *.Dockerfile

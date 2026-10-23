@@ -22,3 +22,7 @@ Run all DEVELOPMENT.md gates. Regressions cover preserved inputs/outputs, replac
 ## Static PNG export acceptance
 
 Run the new export regression suite and the existing full gates. Native CI must render the real static SVG fixture to the requested dimensions and verify its receipt. Unit fixtures cover strict job validation, declarations/resources/scripts/CSS rejection, UTF-8 and size limits, PNG structure/CRC/dimension checks, source drift, native failure/timeout, atomic output/receipt collision refusal and rollback. No pixel-fidelity or arbitrary SVG support claim is made.
+
+## GIMP 3 saved-document acceptance
+
+Build docker build -t ccb-gimp-native -f tools/native-gimp.Dockerfile tools or install GIMP 3 and DejaVu fonts locally, then run CCB_REQUIRE_GIMP=1 pytest tests/test_gimp_native.py --no-cov. This required gate reopens real XCF outputs and checks Unicode content, source hashes, offsets, measured scaling and missing-target/font/collision failures. Ordinary mocked tests cannot establish native compatibility. Record gimp --version and container/package versions with the evidence; inspect ccb conformance gimp --native separately. No rotation or visual-fidelity claim follows from these checks.
