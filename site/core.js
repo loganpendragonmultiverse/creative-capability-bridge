@@ -48,7 +48,7 @@ export function makeTextOperation(values) {
   }
   const parameters = {
     content,
-    font_family: String(values.fontFamily || "Liberation Sans"),
+    ...(values.adapter === "gimp" && !String(values.fontFamily || "").trim() ? {} : {font_family: String(values.fontFamily || "Liberation Sans")}),
     font_size: normalizeNumber(values.fontSize, 48),
     alignment: values.alignment || "left",
     fill: values.fill || "#1D2522",

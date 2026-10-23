@@ -66,3 +66,9 @@ test("import rejects inherited adapters and coerced targets", () => {
  const p={version:1,adapter:"toString",input:null,output:"undefined",operations:[{capability:"text.create",target:"title",parameters:{content:"text"}}]};
  assert.throws(()=>validatePlanPayload(p));p.adapter="inkscape";p.output="out.svg";p.operations[0].target=true;assert.throws(()=>validatePlanPayload(p));
 });
+
+test("GIMP blank font uses context default and explicit resource is retained", () => {
+  const values = {adapter:"gimp",target:"title",content:"Text",fontFamily:""};
+  assert.equal("font_family" in makeTextOperation(values).parameters, false);
+  assert.equal(makeTextOperation({...values,fontFamily:"DejaVu Sans Book"}).parameters.font_family, "DejaVu Sans Book");
+});

@@ -1,9 +1,9 @@
 # Portable font mappings
 
-Map each requested family to application-specific names. Blender requires a local font file, resolved relative to the map file; Inkscape and GIMP use their installed family names.
+Map each requested family to application-specific names. Blender requires a local font file, resolved relative to the map file; Inkscape uses installed family names; GIMP requires exact installed font-resource names, including style (for example DejaVu Sans Book).
 
 ```json
-{"version":1,"families":{"Portable Sans":{"blender":{"family":"DejaVu Sans","file":"fonts/DejaVuSans.ttf"},"inkscape":{"family":"DejaVu Sans"},"gimp":{"family":"DejaVu Sans"}}}}
+{"version":1,"families":{"Portable Sans":{"blender":{"family":"DejaVu Sans","file":"fonts/DejaVuSans.ttf"},"inkscape":{"family":"DejaVu Sans"},"gimp":{"family":"DejaVu Sans Book"}}}}
 ```
 
 The optional inventory is a JSON array of available family names, gathered by the operator for the target application. Without it, name resolution is explicitly unverified. Missing mappings and files block writing a resolved plan. TTF/OTF files are capped at 20 MB. No font is downloaded, redistributed or licensed by this tool. Native font decoding can still fail despite successful preflight. The mapped plan contains an absolute local font reference for Blender; rerun mapping on another machine. Inkscape/GIMP plans retain family names. `font_file` is only supported for Blender text operations and appears in its capability manifest.

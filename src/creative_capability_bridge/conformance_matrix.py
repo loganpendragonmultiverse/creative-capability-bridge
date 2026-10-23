@@ -144,7 +144,7 @@ def run_matrix(native: bool = False, executables: dict[str, str] | None = None) 
     return {
         "schema_version": 1,
         "applications": rows,
-        "boundary": "Native smoke verifies creation/inspection only. SVG round-trip evidence is a document-adapter test, not native application rendering. Blender transform round-trips are reported when native checks run; GIMP still requires semantic acceptance.",
+        "boundary": "Native smoke verifies creation/inspection only. SVG round-trip evidence is a document-adapter test, not native application rendering. Blender transform round-trips are reported when native checks run; GIMP native smoke checks saved text and offsets; broader saved-XCF tests are a separate required GIMP gate. GIMP rotation and raster fidelity are not verified.",
     }
 
 

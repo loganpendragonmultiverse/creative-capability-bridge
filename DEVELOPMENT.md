@@ -30,9 +30,9 @@ Native tests are opt-in locally because Blender, Inkscape, and GIMP are large ex
 CCB_REQUIRE_NATIVE=1 pytest tests/test_native.py
 ```
 
-GitHub CI installs both applications on Ubuntu and requires those smoke tests.
+GitHub CI installs Blender and Inkscape on Ubuntu and requires those native smoke tests. A separate GIMP job builds the isolated tools/native-gimp.Dockerfile environment and requires CCB_REQUIRE_GIMP=1 pytest tests/test_gimp_native.py --no-cov.
 
-GIMP 3 conformance is currently an explicit operator check:
+GIMP 3 conformance can also be reproduced against an installed build:
 
 ```bash
 ccb conformance gimp --native
@@ -68,3 +68,7 @@ Add read-only execution preflight and value-free semantic comparisons between tw
 Keep export-contract version 1 separate from document-plan version 1. Test strict fields, restricted SVG, safe destinations, renderer failures/timeouts, structural PNG checks, source drift, collision races and receipts. Require real Inkscape export in native CI before release; a mocked renderer does not establish visual fidelity.
 
 Validation: 137 automated tests pass locally with four native tests skipped and 90.70% branch coverage. The complete GitHub platform matrix, dependency audit, CodeQL and real Blender/Inkscape native smoke pass. Independent review and recheck found no remaining actionable findings, including named dangling-symlink destination refusal. Native smoke establishes the fixture export and structural receipt checks, not arbitrary SVG support or pixel fidelity.
+
+## 1.6.1 native boundaries
+
+Keep historical measured matrices unchanged. Manifests list exact measured versions separately from target ranges. Require real saved-XCF text creation/update, Unicode inspection, partial-axis translation, measured nonuniform scale, source preservation and failure guards. Record exact GIMP/package/image versions. The GIMP fixture does not establish rotation accuracy, raster fidelity, arbitrary layer-tree support, or native Windows/macOS compatibility.

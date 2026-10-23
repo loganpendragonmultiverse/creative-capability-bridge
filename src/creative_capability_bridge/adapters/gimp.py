@@ -80,11 +80,16 @@ class GimpAdapter:
     (if (null? items) #f
       (if (string=? (gimp-item-get-name (car items)) target) (car items)
         (loop (cdr items))))))
+(define (ccb-font name)
+  (let loop ((items (vector->list (gimp-fonts-get-list ""))))
+    (cond ((null? items) (error (string-append "GIMP font resource unavailable: " name)))
+      ((string=? (gimp-resource-get-name (car items)) name) (car items))
+      (else (loop (cdr items))))))
 (let* ((image {image_expression}))
   (gimp-image-undo-group-start image)
 {operations}
   (gimp-image-undo-group-end image)
-  (gimp-file-save RUN-NONINTERACTIVE image {_string(str(plan.output_path))} NULL)
+  (gimp-file-save RUN-NONINTERACTIVE image {_string(str(plan.output_path))} #f)
   (gimp-image-delete image))
 """
 
@@ -94,6 +99,8 @@ class GimpAdapter:
         return [
             executable,
             "--no-interface",
+            "--new-instance",
+            "--quit",
             "--no-data",
             "--batch-interpreter=plug-in-script-fu-eval",
             f"--batch=(load {_string(script_path)})",
@@ -106,12 +113,16 @@ def _operation_script(operation: Operation) -> str:
     lines = [f"  ; {operation.capability} {operation.target}"]
     if operation.capability == "text.create":
         content = _string(str(params["content"]))
-        font = _string(str(params.get("font_family", "Sans-serif")))
+        font = (
+            f"(ccb-font {_string(str(params['font_family']))})"
+            if "font_family" in params
+            else "(gimp-context-get-font)"
+        )
         size = float(params.get("font_size", 32.0))
         lines.extend(
             [
                 f"  (if (ccb-find-layer image {target}) (quit -1))",
-                f"  (let* ((font (gimp-font-get-by-name {font}))",
+                f"  (let* ((font {font})",
                 f"         (layer (gimp-text-layer-new image {content} font {size} UNIT-PIXEL)))",
                 f"    (gimp-item-set-name layer {target})",
                 "    (gimp-image-insert-layer image layer -1 0)",
@@ -143,14 +154,14 @@ def _text_updates(layer: str, params: dict[str, Any], *, include_content: bool) 
     if "font_family" in params:
         lines.append(
             f"    (gimp-text-layer-set-font {layer} "
-            f"(gimp-font-get-by-name {_string(str(params['font_family']))}))"
+            f"(ccb-font {_string(str(params['font_family']))}))"
         )
     if "font_size" in params:
         lines.append(
             f"    (gimp-text-layer-set-font-size {layer} {float(params['font_size'])} UNIT-PIXEL)"
         )
     if "fill" in params:
-        lines.append(f"    (gimp-text-layer-set-color {layer} {_string(str(params['fill']))})")
+        lines.append(f"    (gimp-text-layer-set-color {layer} {_color(str(params['fill']))})")
     if "alignment" in params:
         alignment = {
             "left": "TEXT-JUSTIFY-LEFT",
@@ -164,9 +175,11 @@ def _text_updates(layer: str, params: dict[str, Any], *, include_content: bool) 
 def _transform_updates(layer: str, params: dict[str, Any]) -> list[str]:
     lines: list[str] = []
     if "x" in params or "y" in params:
+        x = str(round(params["x"])) if "x" in params else "(car offsets)"
+        y = str(round(params["y"])) if "y" in params else "(cadr offsets)"
         lines.append(
-            f"    (gimp-layer-set-offsets {layer} {round(params.get('x', 0))} "
-            f"{round(params.get('y', 0))})"
+            f"    (let ((offsets (gimp-drawable-get-offsets {layer}))) "
+            f"(gimp-layer-set-offsets {layer} {x} {y}))"
         )
     if "scale_x" in params or "scale_y" in params:
         scale_x = float(params.get("scale_x", 1.0))
@@ -196,3 +209,9 @@ def _find_gimp() -> str | None:
 
 def _string(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
+
+
+def _color(value: str) -> str:
+    """Protocol sRGB hex becomes Script-Fu's 8-bit RGBA list, including alpha."""
+    rgba = value[1:] + ("FF" if len(value) == 7 else "")
+    return "'(" + " ".join(str(int(rgba[i : i + 2], 16)) for i in range(0, 8, 2)) + ")"
