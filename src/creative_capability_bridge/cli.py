@@ -26,7 +26,7 @@ from .fonts import map_fonts
 from .inspection import inspect_document
 from .linting import lint_plan
 from .negotiation import compatibility, retarget
-from .pipelines import execute_pipeline, load_pipeline
+from .pipelines import execute_pipeline, load_pipeline, preflight_pipeline
 from .policies import check_policy, enforce_policy, load_policy
 from .receipts import (
     build_receipt,
@@ -136,6 +136,15 @@ def parser() -> argparse.ArgumentParser:
     pipeline_commands = pipeline.add_subparsers(dest="pipeline_command", required=True)
     pipeline_validate = pipeline_commands.add_parser("validate", help="Validate a pipeline DAG.")
     pipeline_validate.add_argument("pipeline", type=Path)
+    pipeline_preflight = pipeline_commands.add_parser(
+        "preflight", help="Review every step and file dependency before execution."
+    )
+    pipeline_preflight.add_argument("pipeline", type=Path)
+    pipeline_preflight.add_argument("--executable")
+    pipeline_preflight.add_argument("--policy", type=Path)
+    pipeline_preflight.add_argument("--receipt-dir", type=Path)
+    pipeline_preflight.add_argument("--replace", action="store_true")
+    pipeline_preflight.add_argument("--inspect", action="store_true")
     pipeline_execute = pipeline_commands.add_parser("execute", help="Execute a pipeline in order.")
     pipeline_execute.add_argument("pipeline", type=Path)
     pipeline_execute.add_argument("--executable")
@@ -349,6 +358,17 @@ def _dispatch(args: argparse.Namespace) -> int:
     if args.command == "pipeline":
         if args.pipeline_command == "validate":
             _print(load_pipeline(args.pipeline))
+        elif args.pipeline_command == "preflight":
+            readiness = preflight_pipeline(
+                args.pipeline,
+                executable=args.executable,
+                policy_path=args.policy,
+                receipt_dir=args.receipt_dir,
+                replace=args.replace,
+                inspect=args.inspect,
+            )
+            _print(readiness)
+            return 0 if readiness["ready"] else 1
         else:
             _print(
                 execute_pipeline(

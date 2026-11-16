@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.7.0] - 2026-11-16
+
+- Add read-only pipeline preflight with ordered per-step diagnostics, input dependency checks and output and receipt collision detection.
+- Check pipeline paths before execution writes its first file, and disallow step IDs that could escape the receipt directory.
+
 ## 1.6.1 — 2026-10-23
 
 - Correct GIMP batch termination, null save options and offset-list inspection; preserve omitted position axes.

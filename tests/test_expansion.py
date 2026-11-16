@@ -21,7 +21,11 @@ from creative_capability_bridge.execution import (
     select_operations,
 )
 from creative_capability_bridge.inspection import inspect_document
-from creative_capability_bridge.pipelines import execute_pipeline, validate_pipeline
+from creative_capability_bridge.pipelines import (
+    execute_pipeline,
+    preflight_pipeline,
+    validate_pipeline,
+)
 from creative_capability_bridge.policies import check_policy, enforce_policy, validate_policy
 from creative_capability_bridge.receipts import sign_receipt, verify_receipt, write_receipt
 from creative_capability_bridge.schema import PlanError, parse_plan
@@ -188,6 +192,54 @@ def test_policy_profiles(tmp_path: Path) -> None:
     assert not check_policy(plan, policy)["valid"]
     assert check_policy(plan, policy, receipt=tmp_path / "receipt.json")["valid"]
     assert not check_policy(plan, policy, receipt=tmp_path / "r", replace=True)["valid"]
+
+
+def test_pipeline_preflight_preserves_outputs_on_late_collision(tmp_path: Path) -> None:
+    first, second = tmp_path / "first.svg", tmp_path / "second.svg"
+    for name, input_path, output in (
+        ("first", None, first),
+        ("second", first.name, second),
+    ):
+        plan: dict[str, Any] = {
+            "version": 1,
+            "adapter": "inkscape",
+            "output": output.name,
+            "operations": [
+                {
+                    "capability": "text.create",
+                    "target": name,
+                    "parameters": {"content": name, "x": 10, "y": 20},
+                }
+            ],
+        }
+        if input_path is not None:
+            plan["input"] = input_path
+        (tmp_path / f"{name}.json").write_text(json.dumps(plan))
+    pipeline = tmp_path / "pipeline.json"
+    payload: dict[str, Any] = {
+        "pipeline_version": 1,
+        "steps": [
+            {"id": "first", "plan": "first.json"},
+            {"id": "second", "plan": "second.json", "depends_on": ["first"]},
+        ],
+    }
+    pipeline.write_text(json.dumps(payload))
+    readiness = preflight_pipeline(pipeline)
+    assert readiness["ready"]
+    assert readiness["steps"][1]["input_producer"] == "first"
+    assert not first.exists() and not second.exists()
+
+    second.write_text("existing")
+    with pytest.raises(PlanError, match="second: output_exists"):
+        execute_pipeline(pipeline, lambda _name, _executable: InkscapeAdapter())
+    assert not first.exists()
+    assert second.read_text() == "existing"
+
+    del payload["steps"][1]["depends_on"]
+    pipeline.write_text(json.dumps(payload))
+    assert {"step": "second", "code": "undeclared_input_dependency"} in (
+        preflight_pipeline(pipeline)["errors"]
+    )
 
 
 def test_pipeline_validation_and_execution(tmp_path: Path) -> None:

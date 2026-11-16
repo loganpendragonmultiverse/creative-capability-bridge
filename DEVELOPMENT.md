@@ -72,3 +72,7 @@ Validation: 137 automated tests pass locally with four native tests skipped and 
 ## 1.6.1 native boundaries
 
 Keep historical measured matrices unchanged. Manifests list exact measured versions separately from target ranges. Require real saved-XCF text creation/update, Unicode inspection, partial-axis translation, measured nonuniform scale, source preservation and failure guards. Record exact GIMP/package/image versions. The GIMP fixture does not establish rotation accuracy, raster fidelity, arbitrary layer-tree support, or native Windows/macOS compatibility.
+
+## 1.7.0 multi-document pipeline review
+
+Preflight builds the declared file graph and reports deferred evidence for generated inputs. Execution checks the full file graph before starting. Native execution retains per-step transactions, so completed steps are available if later native work fails.

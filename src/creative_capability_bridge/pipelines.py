@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -11,6 +12,7 @@ from typing import Any
 from .execution import ExecutableAdapter, execute_transactionally
 from .policies import enforce_policy, load_policy
 from .receipts import build_receipt, write_receipt
+from .review_tools import preflight
 from .schema import PlanError, load_plan
 
 PIPELINE_VERSION = 1
@@ -39,8 +41,14 @@ def validate_pipeline(payload: Any, *, base_dir: Path | None = None) -> dict[str
         identifier = item.get("id")
         plan = item.get("plan")
         dependencies = item.get("depends_on", [])
-        if not isinstance(identifier, str) or not identifier or identifier in identifiers:
-            raise PlanError("Pipeline step ids must be non-empty and unique.")
+        if (
+            not isinstance(identifier, str)
+            or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", identifier)
+            or identifier in identifiers
+        ):
+            raise PlanError(
+                "Pipeline step ids must be unique and use 1–64 filename-safe characters."
+            )
         if not isinstance(plan, str) or not plan:
             raise PlanError(f"Pipeline step {identifier} needs a plan path.")
         if not isinstance(dependencies, list) or not all(
@@ -72,6 +80,93 @@ def validate_pipeline(payload: Any, *, base_dir: Path | None = None) -> dict[str
     }
 
 
+def preflight_pipeline(
+    path: Path,
+    *,
+    executable: str | None = None,
+    policy_path: Path | None = None,
+    receipt_dir: Path | None = None,
+    replace: bool = False,
+    inspect: bool = False,
+) -> dict[str, Any]:
+    """Check a pipeline's declared file graph and the readiness of each plan."""
+    pipeline = load_pipeline(path)
+    plans = {step["id"]: load_plan(Path(step["plan"])) for step in pipeline["steps"]}
+    protected = {path.resolve(), *(Path(step["plan"]) for step in pipeline["steps"])}
+    if policy_path:
+        protected.add(policy_path.resolve())
+
+    reports: list[dict[str, Any]] = []
+    errors: list[dict[str, str]] = []
+    outputs: dict[Path, str] = {}
+    ancestors: dict[str, set[str]] = {}
+    for step in pipeline["steps"]:
+        step_id = step["id"]
+        ancestors[step_id] = set(step["depends_on"]).union(
+            *(ancestors[dependency] for dependency in step["depends_on"])
+        )
+        output = plans[step_id].output_path.resolve()
+        if output in outputs:
+            errors.append({"step": step_id, "code": "duplicate_output"})
+        outputs[output] = step_id
+        if output in protected:
+            errors.append({"step": step_id, "code": "configuration_collision"})
+
+    inputs = {plan.input_path.resolve() for plan in plans.values() if plan.input_path}
+    for step in pipeline["steps"]:
+        step_id = step["id"]
+        plan = plans[step_id]
+        source = plan.input_path.resolve() if plan.input_path else None
+        producer = outputs.get(source) if source else None
+        if producer and producer not in ancestors[step_id]:
+            errors.append({"step": step_id, "code": "undeclared_input_dependency"})
+
+        receipt = receipt_dir / f"{step_id}.receipt.json" if receipt_dir else None
+        if receipt and receipt.resolve() in protected | inputs | outputs.keys():
+            errors.append({"step": step_id, "code": "pipeline_receipt_collision"})
+        report = preflight(
+            plan,
+            executable=executable,
+            policy_path=policy_path,
+            receipt=receipt,
+            replace=replace,
+            inspect=inspect and producer is None,
+        )
+        if producer and producer in ancestors[step_id]:
+            report["errors"] = [
+                finding for finding in report["errors"] if finding["code"] != "missing_input"
+            ]
+            report["input_evidence"] = []
+            report["warnings"] = [
+                finding
+                for finding in report["warnings"]
+                if finding["code"] != "input_not_inspected"
+            ]
+            report["warnings"].append(
+                {
+                    "code": "dependent_input",
+                    "message": "An upstream step creates this input; inspect the generated file after execution.",
+                }
+            )
+            report["ready"] = not report["errors"]
+        reports.append(
+            {
+                "id": step_id,
+                "depends_on": step["depends_on"],
+                "input_producer": producer,
+                "preflight": report,
+            }
+        )
+    return {
+        "report_version": 1,
+        "name": pipeline["name"],
+        "ready": not errors and all(step["preflight"]["ready"] for step in reports),
+        "executed": False,
+        "errors": errors,
+        "steps": reports,
+    }
+
+
 def execute_pipeline(
     path: Path,
     adapter_factory: Callable[[str, str | None], ExecutableAdapter],
@@ -82,6 +177,21 @@ def execute_pipeline(
     replace: bool = False,
 ) -> dict[str, Any]:
     pipeline = load_pipeline(path)
+    readiness = preflight_pipeline(
+        path,
+        executable=executable,
+        policy_path=policy_path,
+        receipt_dir=receipt_dir,
+        replace=replace,
+        inspect=policy_path is not None,
+    )
+    if not readiness["ready"]:
+        findings = [f"{finding['step']}: {finding['code']}" for finding in readiness["errors"]]
+        for step in readiness["steps"]:
+            findings.extend(
+                f"{step['id']}: {finding['code']}" for finding in step["preflight"]["errors"]
+            )
+        raise PlanError("Pipeline preflight blocked execution: " + "; ".join(findings))
     policy = load_policy(policy_path) if policy_path else None
     completed: list[dict[str, Any]] = []
     for step in pipeline["steps"]:

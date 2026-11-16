@@ -26,3 +26,7 @@ Run the new export regression suite and the existing full gates. Native CI must 
 ## GIMP 3 saved-document acceptance
 
 Build docker build -t ccb-gimp-native -f tools/native-gimp.Dockerfile tools or install GIMP 3 and DejaVu fonts locally, then run CCB_REQUIRE_GIMP=1 pytest tests/test_gimp_native.py --no-cov. This required gate reopens real XCF outputs and checks Unicode content, source hashes, offsets, measured scaling and missing-target/font/collision failures. Ordinary mocked tests cannot establish native compatibility. Record gimp --version and container/package versions with the evidence; inspect ccb conformance gimp --native separately. No rotation or visual-fidelity claim follows from these checks.
+
+## 1.7.0 pipeline acceptance
+
+Test a two-step pipeline with a generated input, an undeclared dependency, and an existing second-step output. Confirm read-only preflight and confirm a blocked execution leaves the first output absent.

@@ -38,6 +38,19 @@ The protocol is the stable center. Applications remain installed separately, ups
 - Add target-order review and bounded session Undo/Redo; preserve coordinate metadata through builder edits.
 - Keep execution explicit and preserve existing inputs and outputs during review.
 
+## Multi-document pipeline review
+
+Run `ccb pipeline preflight examples/two-document-pipeline.json` to inspect step order,
+inputs, output conflicts and per-plan readiness before launching applications. Add
+`--receipt-dir` to check receipt destinations, `--policy` to evaluate a policy, or
+`--inspect` to inspect external input documents. Reports identify when another step
+will create an input and require that dependency to be declared. Native results
+can only be checked after the generating step runs.
+
+Pipeline execution checks the complete declared file graph before writing its first
+output. Each native document still commits individually. If a native adapter fails
+after an earlier step succeeds, earlier outputs and their receipts stay available.
+
 ## Current capabilities
 
 | Capability | Blender | Inkscape | GIMP 3 |
